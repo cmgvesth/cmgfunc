@@ -1,0 +1,1 @@
+/usr/bin/cc      CMakeFiles/./bin/pfilt.dir/src/pfilt.c.o  -o ./bin/pfilt -rdynamic -lm 

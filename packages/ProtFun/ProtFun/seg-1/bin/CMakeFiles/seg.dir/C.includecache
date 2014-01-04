@@ -1,0 +1,30 @@
+#IncludeRegexLine: ^[ 	]*#[ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/steven/Projects/CMG-Biotools-Share/protfun_cmake/seg-1/seg/genwin.c
+genwin.h
+/home/steven/Projects/CMG-Biotools-Share/protfun_cmake/seg-1/seg/genwin.h
+
+/home/steven/Projects/CMG-Biotools-Share/protfun_cmake/seg-1/seg/genwin.h
+stdio.h
+-
+fcntl.h
+-
+ctype.h
+-
+math.h
+-
+
+/home/steven/Projects/CMG-Biotools-Share/protfun_cmake/seg-1/seg/lnfac.h
+
+/home/steven/Projects/CMG-Biotools-Share/protfun_cmake/seg-1/seg/seg.c
+genwin.h
+/home/steven/Projects/CMG-Biotools-Share/protfun_cmake/seg-1/seg/genwin.h
+lnfac.h
+/home/steven/Projects/CMG-Biotools-Share/protfun_cmake/seg-1/seg/lnfac.h
+

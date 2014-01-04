@@ -1,0 +1,15 @@
+
+# NetPhosK 1.0, p38MAPK prediction
+APE_PRED	NetPhosK 1.0, p38MAPK prediction
+APE_ID		p38MAPK
+
+# amino acid to predict
+APE_AA		ST
+
+# flank to display
+APE_FLANK	4
+
+# NN simulator
+APE_NN		nnhowplayer6
+
+# end of file =================================================================

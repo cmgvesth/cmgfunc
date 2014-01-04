@@ -1,0 +1,5 @@
+/usr/bin/seg
+/usr/bin/nseg
+/usr/bin/nmerge
+/usr/bin/pseg
+/usr/bin/pmerge

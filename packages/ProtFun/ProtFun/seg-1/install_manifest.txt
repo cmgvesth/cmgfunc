@@ -1,0 +1,5 @@
+/home/cmgfunc/ProtFun/seg
+/home/cmgfunc/ProtFun/nseg
+/home/cmgfunc/ProtFun/nmerge
+/home/cmgfunc/ProtFun/pseg
+/home/cmgfunc/ProtFun/pmerge

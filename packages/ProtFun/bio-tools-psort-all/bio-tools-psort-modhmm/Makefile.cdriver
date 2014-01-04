@@ -1,0 +1,10 @@
+all: binding.c cdriver.c
+#	gcc -fPIC -g -c -Wall binding.c
+	gcc cdriver.c binding.c -Imodhmm0.92b -L . -lmodhmm -lm -o cdriver
+
+test:
+	./driver
+	./cdriver
+
+clean:
+	rm -f *.o *.so *.so.1 driver cdriver *~

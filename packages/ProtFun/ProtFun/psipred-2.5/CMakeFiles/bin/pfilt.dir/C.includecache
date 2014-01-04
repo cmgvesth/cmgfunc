@@ -1,0 +1,20 @@
+#IncludeRegexLine: ^[ 	]*#[ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/cmgfunc/ProtFun/ProtFun/psipred-2.5/src/pfilt.c
+stdio.h
+-
+stdlib.h
+-
+ctype.h
+-
+math.h
+-
+string.h
+-
+

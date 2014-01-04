@@ -1,0 +1,42 @@
+### README
+ProtParam.py
+
+### PREREQUESITES
+This python script requires the following modules:
+    -- BioPython - parsing and some analysis   (apt-get install python-biopython)
+    -- PyYAML    - printing results            (apt-get install python-yaml)
+
+### GENERAL INFORMATION
+This replaces AACOMP and EXPASY ProtParam
+The following are computed:
+
+amino_acid_usage
+amino_acid_percentages
+molecular_weight
+aromaticity
+instability_index
+flexibility_index
+flexibility_average
+gravy_coeff
+isoelectric_point
+secondary_structure
+extinction_coeff_max
+extinction_coeff_min
+absorbtion_max
+absorbtion_min
+in_vivo_halflife
+aliphatic_index
+atom_usage
+total_molecules
+total_atoms
+number_negative
+weight_negative
+number_positive
+weight_positive
+number_aromatic
+weight_aromatic
+number_nonpolar
+weight_nonpolar
+number_uncharged
+weight_uncharged
+sequence_length

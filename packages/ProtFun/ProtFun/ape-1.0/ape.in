@@ -1,0 +1,510 @@
+#! /bin/tcsh -f
+
+# ape 1.0
+# 
+# APE - All Prediction Engine at CBS
+#
+# VERSIONS	20 Oct 2004	1.0a	packaging (IRIX and Linux), K. Rapacki
+# 		 5 Apr 2005	1.0b	paste replaced by own script;
+# 					different FScore calculations enabled;
+#		 6 Jun 2005	1.0c	choice of location of temporary files
+# 					enabled
+# 		12 Aug 2005	1.0d	use of 'nnhowplayer' enabled
+# 		19 Sep 2005	1.0e	use of $UNIX.$ARCH introduced
+# 
+
+###############################################################################
+#       GENERAL SETTINGS, CUSTOMIZE TO YOUR SITE
+###############################################################################
+
+# full path to APE directory
+setenv	APE	"@APE_LIBRARY_DIR@"
+
+# determine platform (do not change this unless you don't have 'uname'!)
+setenv UNIX `uname -s`
+setenv ARCH `uname -i`
+
+# determine where to store temporary files
+setenv	TMP	/var/tmp/$$
+mkdir /var/tmp/$$
+
+# available cpu:s (multiprocessor systems only) ### not used yet ###
+setenv	MAXCPU	5
+
+# configure auxiliary software (see installation instructions)
+   setenv ECHO	`which echo`
+   setenv AWK	`which gawk`
+   setenv PERL	`which perl`
+   setenv PYTHON `which python`
+
+   setenv GNUPLOT `which gnuplot`
+   setenv PPM2GIF `which ppmtogif`
+
+###############################################################################
+#       OTHER SETTINGS: NOTHING SHOULD NEED CHANGING BELOW THIS LINE!
+###############################################################################
+
+# validate custom settings
+if ( ! $?APE ) then					# mandatory: APE
+   echo ape: APE must be set
+   exit 1
+else if ( ! -d $APE) then
+   echo ape: cannot find APE in $APE
+   exit 1
+endif
+
+if ( ! $?MAXCPU ) then					# mandatory: MAXCPU
+   setenv MAXCPU 1
+else if ( `echo $MAXCPU | tr -d '[0-9]' | wc -c` > 1 ) then
+   echo ape: MAXCPU must be a positive integer
+   exit 1
+else if ( $MAXCPU == 0 ) then
+   echo ape: MAXCPU must be a positive integer
+   exit 1
+endif
+
+if ( ! $?ECHO ) then                                    # mandatory: ECHO
+   echo ape: ECHO must be set
+   exit 1
+else if ( "echo" != "echo" ) then
+   if ( ! -x `echo echo | sed 's/ .*//'` ) then
+      echo ape: cannot execute \"echo\" as ECHO
+      exit 1
+   endif
+endif
+
+if ( ! $?AWK ) then                                     # mandatory: AWK
+   echo ape: AWK must be set
+   exit 1
+else if ( ! -x $AWK ) then
+   echo ape: cannot execute \"$AWK\" as AWK
+   exit 1
+endif
+
+# NOTE: PERL and PYTHON are not mandatory
+
+if ( ! -w $TMP ) then
+   echo ape: cannot write to \"$TMP\"
+   exit 2
+endif
+
+# custom settings OK
+
+# local settings
+setenv	APEBIN	$APE/bin
+setenv	APECLP	$APE/clp
+setenv	APEDISP	$APE/disp
+setenv	APEETC	$APE/etc
+setenv	APEPRED	$APE/pred
+setenv	APETMP	$TMP/$0:t-$$			# if called under another name
+
+setenv	HERE	$cwd
+setenv	LANG	C				# else AWK will not work ...
+
+setenv	VER	1.0e
+setenv	VERDATE	"Sep 2005"
+
+#setenv	DEBUG
+
+set	minl	= 1				# shortest seq. length allowed
+set	maxl	= 6000				# longest
+set	maxn	= 2000				# max number of seqs
+
+set	d_opt	= $HERE				# default: cwd
+set	i_opt					# default: no masking
+set	n_opt	= "ape"				# default: APE's own name
+set	o_opt					# default: no options
+set	p_opt	= '{*}'				# default: all predictions
+
+set	I_opt	= "how";			# default: input to networks
+
+###############################################################################
+##	translate command line and call again                                ##
+###############################################################################
+if ( -e $APECLP/$0:t.awk ) then
+   set cl = (`echo $argv | $AWK -f $APECLP/$0:t.awk`)
+   if ( $?DEBUG ) echo "$cl"
+   /bin/tcsh -c "$APE/ape $cl"		# recursive call with new command line
+   exit
+endif
+
+###############################################################################
+##	parse command line                                                   ##
+###############################################################################
+set infile = ()
+while ( $#argv )
+   switch ($1)
+   case '-b'				# -b	bottom: shortest seq. allowed
+      shift
+      set minl = $1
+   breaksw
+   case '-d'				# -d	destination dir for graphics
+      shift
+      set d_opt = $1
+   breaksw
+   case '-g'				# -g	graphics
+      set g_opt
+      set o_opt = ("$o_opt" "-v S=1 -v G=1")
+   breaksw
+   case '-h'				# -h	help
+      set h_opt
+   breaksw
+   case '-i'				# -i	ignore (mask out)
+      shift
+      set i_opt = $1
+   breaksw
+   case '-k'				# -k	keep tmp directory
+      set k_opt
+   breaksw
+   case '-l'				# -l	list available predictions
+      set l_opt
+   breaksw
+   case '-m'				# -m	method to run
+      shift
+      set m_opt = $1
+      set p_opt = "$1_*"
+   breaksw
+   case '-n'				# -n	active name
+      shift
+      set n_opt = $1
+   breaksw
+   case '-o'				# -o	options to disp script
+      shift
+      set o_opt = ("$o_opt" "$1")
+   breaksw
+   case '-p'				# -p	predictions to run
+      shift
+      set p_opt = '{'"$1"'}'
+   breaksw
+   case '-r'				# -r	raw prediction output
+      set r_opt
+   breaksw
+   case '-t'				# -t	top: longest seq. allowed
+      shift
+      set maxl = $1
+   breaksw
+   case '-v'				# -v	report progress
+      set v_opt
+      set o_opt = ("$o_opt" "-v V=1")
+   breaksw
+   case '-I'				# -I	input format to networks
+      shift
+      set I_opt = $1
+   breaksw
+   case '-P'				# -P	paste network output
+      set P_opt
+   breaksw
+   case '-V'				# -V	report version and release date
+      set V_opt
+   breaksw
+   default:
+      set infile = ($infile $1)
+   breaksw
+   endsw
+   shift
+end
+
+###############################################################################
+##	version info                                                         ##
+###############################################################################
+if ( $?V_opt ) then
+   if ( -e $APECLP/$n_opt.awk ) then
+      echo __VERSION__ | $AWK -f $APECLP/$n_opt.awk
+   else
+      echo ape $VER, $VERDATE
+   endif
+   exit
+endif
+
+###############################################################################
+##	help: command line summary                                           ##
+###############################################################################
+if ( $?h_opt ) then
+   if ( -e $APECLP/$n_opt.awk ) then
+      echo __HELP__ | $AWK -f $APECLP/$n_opt.awk
+      exit
+   endif
+
+   echo "\nape $VER, $VERDATE\n"
+
+   echo "Options:\n"
+   echo "\t-d dir\tdestination dir for graphics files"
+   echo "\t-g\tgenerate GIF graphics"
+   echo "\t-h\tprints this message"
+   echo "\t-i str\tignore (mask out) symbols in str"
+   echo "\t-k\tkeep tmp directory (for debugging)"
+   echo "\t-l\tlist available predictions"
+   echo "\t-m str\trun method str e.g. netphos"
+   echo "\t-o str\tpass str to display script as options"
+   echo "\t-p str\trun predictions in str, ',' separated"
+   echo "\t-r\tshow raw output, bypassing display script"
+   echo "\t-V\tprint version and release date"
+   echo "\n\t<file>\tdata file to run, FASTA, HOW or TAB"
+
+   exit
+endif
+
+###############################################################################
+##	list available predictions                                           ##
+###############################################################################
+if ( $?l_opt) then
+   echo "\nape $VER, $VERDATE\n"
+
+   echo The following predictions are currently available:
+   ls -1 $APEPRED \
+      | $AWK -v D=$APEDISP '{ 					\
+		m = substr($1,1,index($1,"_")-1);		\
+		if (m!=prev) {					\
+		   printf(("\n\t" $1 "\t\tscript: "));		\
+		   disp="";					\
+		   ("ls " D "|grep ^" m) | getline disp;	\
+		   if (disp=="") print "none"; else print disp;	\
+		}						\
+		else						\
+		   print "\t" $1;				\
+		prev = m; }'
+   exit
+
+endif
+
+###############################################################################
+##	-g flag given, check settings                                        ##
+###############################################################################
+if ( $?g_opt ) then
+   if ( ! $?GNUPLOT ) then		# mandatory for graphics: GNUPLOT
+      echo ape: GNUPLOT must be set
+      exit 3
+   else if ( ! -x $GNUPLOT ) then
+      echo ape: cannot execute \"$GNUPLOT\" as GNUPLOT
+      exit 3
+   endif
+
+   if ( ! $?PPM2GIF ) then		# mandatory for graphics: PPM2GIF
+      echo ape: PPM2GIF must be set
+      exit 3
+   else if ( ! -x $PPM2GIF ) then
+      echo ape: cannot execute \"$PPM2GIF\" as PPM2GIF
+      exit 3
+   endif
+endif
+
+###############################################################################
+##	scan input sequences                                                 ##
+###############################################################################
+foreach f ($infile)
+   if ( ! -e $f ) then
+      echo ape: cannot open \"$f\"
+      exit -1
+   endif
+end
+
+mkdir $APETMP			### Ol Korrekt ... ###
+
+# take in the sequence input
+$AWK -v OUTDIR=/dev/stdout -v OUTPUTFORMAT=$I_opt -v MAXNAMELEN=20 \
+     -v M=$i_opt -v P=X -v V=1 -v X=0 \
+     -v B=$minl -v T=$maxl -f $APEBIN/seq2seq.awk $infile \
+   >$APETMP/in.$I_opt
+
+cd $APETMP
+
+# count approved sequences; get names and seqs
+#$SEQ2SEQ -f tab in.$I_opt >in.tab
+$AWK -v OUTDIR=/dev/stdout -v OUTPUTFORMAT=tab \
+     -f $APEBIN/seq2seq.awk in.$I_opt >in.tab
+set ec = `cat in.tab | wc -l`
+
+# no sequences or too many?
+if ( ! $ec ) then
+   echo ape: no valid sequences found in \"$infile\"
+   cd /; rm -rf $APETMP
+   exit -2
+else if ( $ec > $maxn ) then
+   echo ape: $ec sequences found, only $maxn allowed
+   cd /; rm -rf $APETMP
+   exit -3
+endif
+
+###############################################################################
+##	run predictions                                                      ##
+###############################################################################
+foreach p ($APE/pred/$p_opt)
+
+   if ( ! -d $p ) continue
+
+   if ( $?r_opt ) echo '\n# predicting' $p:t
+
+   # prepare tmp dir
+   cd $APETMP; mkdir $p:t; cd $p:t; ln -s $p/* .
+   ln -s ../in.* .
+
+   # set default environment
+   setenv APE_PRED	"Unspecified prediction"	# prediction
+   setenv APE_ID 	-				# prediction ID
+   setenv APE_AA	A-Z				# amino acids
+   setenv APE_FLANK	4				# sequence flank
+   setenv APE_NN	how				# NN simulator
+   setenv APE_FS	average				# final scoring
+   setenv APE_TRUNC	0				# sequence truncation
+
+   # load custom environment
+   if ( -e environ ) then
+      eval `$AWK -f $APEBIN/loadenv.awk ./environ`
+   else
+      echo ape: cannot find \"environ\" file in \"$p:t\"
+      continue
+   endif
+
+   # check for NN simulator
+   if ( ! -x $APEBIN/${APE_NN}_$UNIX.$ARCH ) then
+      echo ape: cannot find \"$APEBIN/${APE_NN}_$UNIX.$ARCH\" \
+         needed by \"$APE_PRED\"
+      continue
+   endif
+
+   # if truncation pending note the sequence lengths
+   if ( $APE_TRUNC ) then
+      if ( ! -e ../in.len ) then
+         $AWK '{print $1,length($2);}' ../in.tab >../in.len
+      endif
+   endif
+
+   #######   nnhowplayer   #######
+   if ( `echo $APE_NN | grep nnhowplayer | wc -l` ) then
+
+      # convert to act format
+      $AWK -v OUTDIR=/dev/stdout -v OUTPUTFORMAT=act -v M=^$APE_AA \
+           -v TRUNC=$APE_TRUNC -f $APEBIN/seq2seq.awk in.tab >in.act
+
+      # run the networks
+      if ( $?r_opt ) then
+         $APEBIN/${APE_NN}_$UNIX.$ARCH -slist -a in.act syn.lst \
+	    | $AWK -v P=$APE_ID '/^[^#]/{print $0 "\t" P;}'
+      else
+         $APEBIN/${APE_NN}_$UNIX.$ARCH -slist -a in.act syn.lst \
+            | $AWK -v P=$APE_ID '/^[^#]/{print $0 "\t" P;}' \
+	    >../$p:t.out
+      endif
+
+      continue
+
+   endif
+
+   #######   HOW clones    #######
+
+   # check .dat.file (use generic if not found)
+   if ( ! -e ${APE_NN}.dat ) ln -s $APEETC/${APE_NN}.dat .
+
+   # check synapse files
+   set syncnt = `ls -1 *syn | wc -l`
+   if ( ! $syncnt ) then
+      echo ape: no synapse files found in \"$APE_PRED\"
+      continue
+   endif
+
+   # check pp script (use generic if not found)
+   if ( ! -e pp.awk ) ln -s $APEBIN/pp.awk .
+   set pp = ($AWK -v N=$syncnt -v ID=$APE_ID -v AA=$APE_AA -v FL=$APE_FLANK \
+             -v FSC=$APE_FS -f pp.awk)
+
+   # pre-processing
+   if ( -e prep.awk ) then
+      $AWK -f prep.awk in.how >in.how.tmp
+      rm in.how
+      mv in.how.tmp in.how
+   endif
+
+   # masking ('in.how' needs to be modified)
+   if (( $?APE_MASK_AA ) || ( $?APE_MASK_RANGE )) then
+      if ( ! $?APE_MASK_AA ) setenv APE_MASK_AA
+      if ( ! $?APE_MASK_RANGE ) setenv APE_MASK_RANGE
+      $AWK -v OUTDIR=/dev/stdout -v OUTPUTFORMAT=how \
+           -v M="$APE_MASK_AA,$APE_MASK_RANGE" -f $APEBIN/seq2seq.awk in.how \
+         >in.how.tmp
+      rm in.how
+      mv in.how.tmp in.how
+   endif
+
+   # run the networks
+   foreach syn (*.syn)
+
+      # read # hidden units, window size and output alphabet from synapse file
+      set hl = `$AWK '/LAYER:   2$/{print $1;}' $syn`
+      set ws = `$AWK '/:NWSIZE/{print $3;}' $syn`
+      set oa = `$AWK '/OUT:/{print $NF;}' $syn`
+
+      # correct for networks with 0 hidden units
+      if ( `$AWK '/LAYER:   3$/{print $1;}' $syn` == "" ) then
+         set hl = 0
+	 set nl = 2
+      else
+         set nl = 3
+      endif
+
+      sed 's/__EC__/'$ec'/;s/__SYN__/'$syn'/; \
+           s/__HL__/'$hl'/;s/__NL__/'$nl'/; \
+	   s/__WS__/'$ws'/;s/__OA__/'$oa'/' ${APE_NN}.dat \
+         | $APEBIN/${APE_NN}_$UNIX.$ARCH \
+	 | $AWK '/^ SINGLE WINDOW/{act++;}act{print;}' >$syn:r.out
+   end
+
+   # postprocess
+   if ( $?r_opt ) then
+      $AWK -f $APEBIN/paste.awk *.out | $pp
+   else
+      $AWK -f $APEBIN/paste.awk *.out | $pp >../$p:t.out
+   endif
+   
+end
+
+###############################################################################
+##	display results                                                      ##
+###############################################################################
+if ( ! $?r_opt ) then					# not raw output
+   cd $APETMP						# main level tmp
+   if ( $?m_opt ) then					# method specified
+      (ls -1 $APEDISP/$m_opt* >disp_scr) >&/dev/null	# list scripts
+      set disp_scr = (`cat disp_scr`)
+
+      if ( $#disp_scr ) then	# at least one display script exists
+
+         # construct the display script command line
+         if ( $disp_scr[1]:e == "awk" ) then		# awk
+	    set disp = ( $AWK $o_opt -f $disp_scr[1] )
+	 else if ( $disp_scr[1]:e == "pl" ) then	# perl
+	    set disp = ( $PERL $o_opt $disp_scr[1] )
+	 else if ( $disp_scr[1]:e == "py" ) then	# python
+	    set disp = ( $PYTHON $o_opt $disp_scr[1] )
+	 else						# other e.g. tcsh
+	    set disp = ( $disp_scr[1] $o_opt )
+	 endif
+
+	 # run display script
+	 if ( $?P_opt ) then
+	    $AWK -f $APEBIN/paste.awk $APETMP/$p_opt.out | $disp
+	 else if ( `egrep '^APE_NN.*nnhowplayer' $p_opt/environ | wc -l` ) then
+	    sort -k3,3 -k4,4n -k5,5r $APETMP/$p_opt.out | $disp
+	 else
+            sort -k1,1 -k2,2n -k5,5r $APETMP/$p_opt.out | $disp
+	 endif
+
+         # move graphics files to destination
+	 if ( $?g_opt ) then
+	    mv *.gif $d_opt
+	 endif
+      else			# no display script
+         cat $APETMP/$p_opt.out    
+      endif
+   else				# no method specified
+      cat $APETMP/$p_opt.out
+   endif
+endif
+
+###############################################################################
+##	cleanup                                                              ##
+###############################################################################
+cd /
+if ( ! $?k_opt ) rm -rf $APETMP
+
+
+# end of script ===============================================================

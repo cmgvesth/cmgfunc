@@ -1,0 +1,92 @@
+ PSORTb version 3.0.3 README
+-----------------------------------------------------------------------------
+    * OVERVIEW
+    * DESCRIPTION
+    * INSTALLATION
+    * BUG REPORTING
+    * COPYRIGHT AND LICENCE
+    * AUTHOR INFORMATION
+    * ACKNOWLEDGEMENTS
+-----------------------------------------------------------------------------
+OVERVIEW
+
+PSORTb is described in: Gardy, J.L. et al (2003). PSORTb: improving
+protein subcellular localization prediction for Gram-negative bacteria.
+Nucleic Acids Research 31(13):3613-17. Please cite this publication if you
+use PSORTb in your research.
+
+The standalone version of PSORTb is distributed under the GNU General
+Public Licence (GNU GPL). The program was initially been developed for the
+Linux environment, but has since been ported to OS X (10.4 Darwin, NOT any
+newer versions) and Solaris SPARC and x86.
+
+This document describes the installation of the PSORTb version 3.0.0
+command line program and the PSORTb server packages. For most purposes,
+following the installation instructions for the command line version will
+be sufficient - the server package installation instructions are only
+necessary if one wishes to set up their own local PSORTb server.
+
+For further information, please contact psort-mail@sfu.ca.
+-----------------------------------------------------------------------------
+DESCRIPTION
+
+Computational prediction of the subcellular localization of proteins is a
+valuable tool for genome analysis and annotation, since a protein's
+subcellular localization can provide clues regarding its function in an
+organism. The Bio::Tools::PSort package implements a method for making
+such predictions.
+
+The original version of PSORT was developed by Kenta Nakai, at the Human
+Genome Center, Institute for Medical Science, University of Tokyo, Japan.
+The Brinkman Laboratory later headed development of PSORTb, an updated
+version of the PSORT algorithm designed for bacterial proteins.
+Bio::Tools::PSort and its associated modules were originally written by
+Cory Spencer of the Simon Fraser University Brinkman Laboratory. The
+package is currently maintained by Matthew Laird and all inquiries,
+patches and comments should be sent to him at lairdm@sfu.ca.
+
+To read about the latest features, see the Changes file included in the
+downloadable PSORTb package.
+
+The author invites feedback on Bio::Tools::PSort. If you find a bug,
+please send the information described in the BUGS section below.
+-----------------------------------------------------------------------------
+INSTALLATION
+
+To install this package, please refer to the INSTALL file included with
+the distribution.
+-----------------------------------------------------------------------------
+BUG REPORTING
+
+If you find a bug, please report it to psort-mail@sfu.ca along with the
+following information:
+
+    * version of Perl (output of 'perl -V' is best)
+    * version of Bio::Tools::PSort
+    * operating system type and version
+    * exact text of error message or description of problem
+    * example model files/data being classified
+
+If we don't have access to a system similar to yours, you may be asked to
+insert some debugging lines and report back on the results. The more help
+and information you can provide, the better!
+-----------------------------------------------------------------------------
+COPYRIGHT AND LICENCE
+
+The modules distributed with Bio::Tools::PSort are Copyright (C) 2002 Cory
+Spencer and Fiona Brinkman. All rights reserved.
+
+This program is distributed under the GNU General Public License. See also
+the LICENCE file included with this package.
+-----------------------------------------------------------------------------
+AUTHOR INFORMATION
+
+The modules distributed with the Bio::Tools::PSort package were originally
+written by Cory Spencer, but are currently maintained by Matthew Laird of
+the Brinkman Laboratory at Simon Fraser University, Burnaby, BC, Canada -
+http://www.pathogenomics.sfu.ca/brinkman
+-----------------------------------------------------------------------------
+ACKNOWLEDGEMENTS
+
+Thanks go to all of the members of the SFU Brinkman Laboratory for being
+particularly helpful during the development process of this package.

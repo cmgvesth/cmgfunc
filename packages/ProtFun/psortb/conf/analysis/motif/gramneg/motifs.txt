@@ -1,0 +1,43 @@
+GGXGXD	Extracellular	(GG.G.D.*){4}	C-terminal secretion motif - Extracellular
+PS01039	Periplasmic	G[FYIL][DE][LIVMT][DE][LIVMF][^PS][^YG].[LIVMA][VAGC][^TPRG][^GL][LIVMAGN]	SBP_BACTERIAL_3 Pattern - Periplasmic
+PS01037	Periplasmic	[GAP][LIVMFA][STAVDN]....[GSAV][LIVMFY]{2}Y[ND]...[LIVMF].[KNDE]	SBP_BACTERIAL_1 Pattern - Periplasmic
+PS01040	Periplasmic	[AG].{6,7}[DNEG]..[STAIVE][LIVMFYWA].[LIVMFY].[LIVM][KR][KRHDE][GDN][LIVMA][KNGSP][FW]	SBP_BACTERIAL_5 Pattern - Periplasmic
+PS01157	Periplasmic	GSYPSGHT	ACID_PHOSPH_CL_A Pattern - Periplasmic
+PS00635	Periplasmic	[LIVMFY][APN].[DNS][KREQ]E[STR][LIVMAR].[FYWT].[NC][LIVM]..[LIVM]P[PAS]	PILI_CHAPERONE Pattern - Periplasmic
+PS00576	OuterMembrane	[LIVMFY]..G..Y.F.K..[SN][STAV][LIVMFYW]V	GRAM_NEG_PORIN Pattern - Outer Membrane
+PS00694	OuterMembrane	(G[LIVMFY]N[LIVM]KYRYE)	ENT_VIR_OMP_1 Pattern - Outer Membrane
+PS00695	OuterMembrane	([FYW]..G.GY[KR]F)	ENT_VIR_OMP_2 Pattern - Outer Membrane
+PS01151	OuterMembrane	[VL][PASQ][PAS]G[PAD][FY].[LI][DNQSTAP][DNH][LIVMFY]	FIMBRIAL_USHER Pattern - Outer Membrane
+PS00875	OuterMembrane	[GR][DEQKG][STVM][LIVMA]{3}[GA]G[LIVMFY].{11}[LIVM]P[LIVMFYWGS][LIVMF][GSAE].[LIVM]P[LIVMFYW]{2}..[LV]F	T2SP_D Pattern - Outer Membrane
+PS00834, PS00835	OuterMembrane	((WTD.S.HP.T).*(AGYQE[ST]R[FYW]S[FYW][TN]A.GG[ST]Y))|((AGYQE[ST]R[FYW]S[FYW][TN]A.GG[ST]Y).*(WTD.S.HP.T))	OMPTIN_1, OMPTIN_2 Patterns - Outer Membrane
+PS01068	OuterMembrane	[LIVMA].[GT].[TA][DA]..[DG][GSTP]..[LFYDE][NQS]..[LI][SG][QE][KRQE]RA..[LV]...[LIVMF].{4,5}[LIVM]....[LIVM]...[SG].G	OMPA Pattern - Outer Membrane
+PS00087	Periplasmic	[GA][IMFAT]H[LIVF]H.{2}[GP][SDG].[STAGDE]	SOD_CU_ZN_1 Pattern - Periplasmic
+PS00123	Periplasmic	[IV].DS[GAS][GASC][GAST][GA]T	ALKALINE_PHOSPHATASE Pattern - Periplasmic
+PS00332	Periplasmic	G[GN][SGA]G.R.[SGA]C.{2}[IV]	SOD_CU_ZN_2 Pattern - Periplasmic
+PS00401	Periplasmic	K.[NQEK][GT]G[DQ].[LIVM].{3}QS	PROK_SULFATE_BIND_1 Pattern - Periplasmic
+PS00538	CytoplasmicMembrane	RTE[EQ]Q.{2}[SA][LIVM].[EQ]TAASMEQLTATV	CHEMOTAXIS_TRANSDUCER Pattern - Periplasmic, with Cytoplasmic Membrane Spanning Region and Cytoplasmic Domain
+PS00556	Periplasmic	[LIVMA]{4}C[LIVMFA]T[LIVMA]{2}.{4}[LIVM].[RG].{2}L[CY]	HOK_GEF Pattern - Periplasmic, Cytoplasmic Membrane Spanning
+PS00755	CytoplasmicMembrane	[GST][LIVMF][LIVMFCA].[LIVMF][GSA][LIVM].P[LIVMFY]{2}.[AS][GSTQ][LIVMFAT]{3}[EQ][LIVMFA]{2}	SECY_1 Pattern - CytoplasmicMembrane
+PS00756	CytoplasmicMembrane	[LIVMFYW]{2}.[DE].[LIVM][STDNQ].{2,3}[GK][LIVMF][GST][NST]G.[GST][LIV][LIVFP]	SECY_2 Pattern - Cytoplasmic Membrane
+PS00757	Periplasmic	NPK[ST]SG.AR	PROK_SULFATE_BIND_2 Pattern - Periplasmic
+PS00968	CytoplasmicMembrane	[LIVFAG].[GASV][LIVFA].[IV]H.{3}[LIVM][GSTAE][STANH].{1,3}[STN]W[LIVMFYW]	ATENNA_COMP_ALPHA Pattern - Periplasmic, Cytoplasmic, Membrane Spanning
+PS00969	CytoplasmicMembrane	[EQ].{4}H.{5}[GSTA].{3}[FY].{3}[AG].{2}[AV]H.{7}P	ATENNA_COMP_BETA Pattern - Periplasmic, Cytoplasmic, Membrane Spanning
+PS00192	CytoplasmicMembrane	[DENQ]...G[FYWMQ].[LIVMF]R..H	CYTOCHROME_B_HEME Pattern - Cytoplasmic Membrane
+PS00193	CytoplasmicMembrane	P[DE]W[FY][LFY]{2}	CYTOCHROME_B_QO Pattern - Cytoplasmic Membrane
+PS01303	CytoplasmicMembrane	[GSDN]WT[LIVM].[FY]W.WW	BCCT Pattern - Cytoplasmic Membrane
+PS00449	CytoplasmicMembrane	[STAGN].[STAG][LIVMF]RL.[SAGV]N[LIVMT]	ATPASE_A Pattern - Cytoplasmic Membrane
+PS00713	CytoplasmicMembrane	P.{0,1}G[DE].[LIVMF]{2}.[LIVM]{2}[KREQ][LIVM]{3}.P	NA_DICARBOXYL_SYMP_1 Pattern - Cytoplasmic Membrane
+PS00714	CytoplasmicMembrane	P.G.[STA].[NT][LIVMC]DG[STAN].[LIVM][FY].{2}[LIVM].{2}[LIVM][FY][LI][SA]Q	NA_DICARBOXYL_SYMP_2 Pattern - Cytoplasmic Membrane
+PS00218	CytoplasmicMembrane	[STAGC]G[PAG].{2,3}[LIVMFYWA]{2}.[LIVMFYW].[LIVMFWSTAGC]{2}[STAGC]...[LIVMFYWT].[LIVMST]...[LIVMCTA][GA]E.{5}[PSAL]	AMINO_ACID_PERMEASE_1 Pattern - Cytoplasmic Membrane
+PS00274	Extracellular	[KT]..NW..T[DN]T	AEROLYSIN Pattern - Extracellular
+PS00943	CytoplasmicMembrane	N...[DEH]..[LIMF]D..[VM].R[ST]..R.{4}G	UBIA Pattern - Cytoplasmic Membrane
+PS00077	CytoplasmicMembrane	[YWG][LIVFYWTA]{2}[VGS]H[LNP].V.{44,47}HH	COX1 Pattern - Cytoplasmic Membrane
+PS00221	CytoplasmicMembrane	[HNQA].NP[STA][LIVMF][ST][LIVMF][GSTAFY]	MIP Pattern - Cytoplasmic Membrane
+PS00428	CytoplasmicMembrane	[NV].{5}[GTR][LIVMA].P[PTLIVM].G[LIVM]...[LIVMFW][LIVMFW]S[YSA]GG[STN][SA]	FTSW_RODA_SPOVE Pattern - Cytoplasmic Membrane
+PS00994	CytoplasmicMembrane	R[LIVM][GSA]EV[GSA]ARF[STAIV]LD[GSA][LM]PGKQM[GSA]ID[GSA][DA]	FHIPEP Pattern - Cytoplasmic Membrane
+PS00896	CytoplasmicMembrane	G[LIVM]{2}.D[RK]LGL[RK]{2}.[LIVM]{2}W	LACY_1 Pattern - Cytoplasmic Membrane
+PS00897	CytoplasmicMembrane	P.[LIVMF]{2}NR[LIVM]G.KN[STA][LIVM]{3}	LACY_2 Pattern - Cytoplasmic Membrane
+PS00942	CytoplasmicMembrane	[QEK][RF]G.{3}[GSA][LIVF][WL][NS].[SA][HM]N[LIV][GA]G	GLPT Pattern - Cytoplasmic Membrane
+PS01307	CytoplasmicMembrane	A[LMF].[GAT]T[LIVMF].G.[LIVMF].{7}P	MOTA Pattern - Cytoplasmic Membrane
+PS00594	CytoplasmicMembrane	IG[GA]GM[LF][SA].P.{3}[SA]G.{2}F	AROMATIC_AA_PERMEASE_1 Pattern - Cytoplasmic Membrane
+PS00330	Extracellular	D.[LI].{4}G.D.[LI].GG.{3}D	HEMOLYSIN_CALCIUM Pattern - Extracellular											

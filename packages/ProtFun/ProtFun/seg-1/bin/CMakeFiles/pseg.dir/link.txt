@@ -1,0 +1,1 @@
+/usr/bin/gcc      CMakeFiles/pseg.dir/pseg/pseg.c.o CMakeFiles/pseg.dir/pseg/pgenwin.c.o  -o pseg -rdynamic -lm 

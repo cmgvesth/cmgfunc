@@ -1,0 +1,15 @@
+/home/cmgfunc/ProtFun/tmhmm-2.0c/bin/tmhmmformat.pl
+/home/cmgfunc/ProtFun/tmhmm-2.0c/bin/decodeanhmm.Linux_i386
+/home/cmgfunc/ProtFun/tmhmm-2.0c/bin/decodeanhmm.Linux_x86_64
+/home/cmgfunc/ProtFun/tmhmm-2.0c/bin/decodeanhmm.Linux_i686
+/home/cmgfunc/ProtFun/tmhmm-2.0c/bin/decodeanhmm.Linux_ia64
+/home/cmgfunc/ProtFun/tmhmm-2.0c/bin/tmhmm
+/home/cmgfunc/ProtFun/tmhmm-2.0c/lib/TMHMM2.0.options
+/home/cmgfunc/ProtFun/tmhmm-2.0c/lib/TMHMM2.0.model
+/home/cmgfunc/ProtFun/tmhmm-2.0c/lib/TMHMM1.0.model
+/home/cmgfunc/ProtFun/tmhmm-2.0c/bin/tmhmmformat.pl
+/home/cmgfunc/ProtFun/tmhmm-2.0c/bin/decodeanhmm.Linux_i386
+/home/cmgfunc/ProtFun/tmhmm-2.0c/bin/decodeanhmm.Linux_i686
+/home/cmgfunc/ProtFun/tmhmm-2.0c/bin/decodeanhmm.Linux_ia64
+/home/cmgfunc/ProtFun/tmhmm-2.0c/bin/decodeanhmm.Linux_x86_64
+/home/cmgfunc/ProtFun/tmhmm

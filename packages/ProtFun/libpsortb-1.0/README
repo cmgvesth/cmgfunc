@@ -1,0 +1,85 @@
+PSortb libraries
+================
+
+1) DESCRIPTION
+--------------
+
+libpsortb was created by Matthew Laird of the Brinkman Laboratory at Simon Fraser University.  It was created to provide a more user friendly installer for the various C and C++ libraries used by Psortb.  This library must be successfully be installed before the Perl bindings from the main Psortb package will work.
+
+The package consist of repackaged versions of the following open source tools:
+
+HMMER from the Washington University in St. Louis.  For more information on HMM, see the project homepage at:
+
+  http://hmmer.wustl.edu/
+
+libsvm written by Chih-Chung Chang and Chih-Jen Lin at the National Taiwan University.  For more information on libsvm see the project homepage at:
+
+http://www.csie.ntu.edu.tw/~cjlin/libsvm
+
+modhmm, part of the prodiv_tmhmm package by Hakan Viklund at Stockholm University.  For more information on prodiv_tmhmm see the project homepage at:
+
+http://www.pdc.kth.se/~hakanv/prodiv-tmhmm/
+
+Full versions of the packages used as a basis for these customized versions of the libraries can be found at www.psort.org/downloads/src/
+
+The author invites feedback on this library bundle.  If you find a bug, please send the information described in the BUGS section below.
+
+
+2) INSTALLATION
+---------------
+
+libpsortb has been tested under linux/x86, linux/x86_64
+
+Other operating systems are not supported at this time, but it doesn't mean the package won't work.  Testing has been a matter of access to different OS and hardware platforms.  If you have success with another platform, or would like our assistance porting the package to your platform please contact us.
+
+Installation should be as simple as:
+
+./configure
+make
+make install
+ldconfig
+
+configure takes the usual parameters, however the final libraries must be in a path that the dynamic linker from Perl can find.
+
+
+3) DEPENDENCIES
+---------------
+
+libpsortb depends on an operating system which allows dynamically linked libraries.  These will be loaded by Perl and Psortb runtime.
+
+
+4) BUGS
+-------
+
+If you find a bug, please report it to the author along with the
+following information:
+
+    * version of Perl (output of 'perl -V' is best)
+    * version of libpsortb
+    * operating system type and version
+    * hardware description
+    * exact text of error message or description of problem
+
+If we don't have access to a system similar to yours, you may be asked
+to insert some debugging lines and report back on the results.
+The more help and information you can provide, the better.
+
+
+5) libpsortb COPYRIGHT AND LICENCE
+----------------------------------
+
+libpsortb is Copyright (C) 2008, the Brinkman Laboratory, Simon Fraser Univserity.  All rights reserved.
+
+HMMER, libsvm, and prodiv_tmhmm are the sole Copyright of their respective authors.
+
+This package is licensed under the terms of the Gnu General Public
+License v2.  For more information on the GPL, see the LICENSE file
+included with this distribution.
+
+
+6) AUTHOR INFORMATION
+---------------------
+
+libpsortb was originally written by Matthew Laird <lairdm@sfu.ca> og the Brinkman Laboratory at Simon Fraser University, Burnaby, BC, Canada.
+
+  http://www.pathogenomics.sfu.ca/brinkman

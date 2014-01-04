@@ -1,0 +1,6 @@
+Name:		psort.classify
+Version:	1.0
+Hidden:		no
+Signature:	struct struct
+Helpfile:	classify.help
+Codefile:	classify.code

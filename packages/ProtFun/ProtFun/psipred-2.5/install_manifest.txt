@@ -1,0 +1,14 @@
+/home/cmgfunc/ProtFun/psipred-2.5/bin/psipass2
+/home/cmgfunc/ProtFun/psipred-2.5/bin/pfilt
+/home/cmgfunc/ProtFun/psipred-2.5/bin/seq2mtx
+/home/cmgfunc/ProtFun/psipred-2.5/bin/psipred
+/home/cmgfunc/ProtFun/psipred-2.5/data/weights_s.dat3
+/home/cmgfunc/ProtFun/psipred-2.5/data/weights_s.dat
+/home/cmgfunc/ProtFun/psipred-2.5/data/weights.dat
+/home/cmgfunc/ProtFun/psipred-2.5/data/weights.dat4
+/home/cmgfunc/ProtFun/psipred-2.5/data/weights.dat3
+/home/cmgfunc/ProtFun/psipred-2.5/data/weights_p2.dat
+/home/cmgfunc/ProtFun/psipred-2.5/data/weights.dat2
+/home/cmgfunc/ProtFun/psipred-2.5/data/weights_s.dat2
+/home/cmgfunc/ProtFun/runpsipred
+/home/cmgfunc/ProtFun/runpsipred_single

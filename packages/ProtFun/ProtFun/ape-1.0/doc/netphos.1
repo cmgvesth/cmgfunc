@@ -1,0 +1,179 @@
+.de Id
+.ds Rv \\$3
+.ds Dt \\$4
+..
+.Id $Header: example.1,v 1.2 94/02/15 13:28:25 rapacki Exp $
+.TH netphos 1 \" -*- nroff -*-
+.SH NAME
+netphos \- predict phosphorylation sites in proteins
+.SH SYNOPSIS
+\fBnetphos\fP [\fB\-2\fP] [\fB\-b\fP] [\fB\-c\fP \fIcutoff\fP]
+[\fB\-d\fP \fIdir\fP] [\fB\-g\fP] [\fB\-f\fP \fIfmt\fP] [\fB\-h\fP]
+        [\fB\-k\fP] [\fB\-s\fP] [\fB\-t\fP] [\fB\-y\fP] [\fB\-S\fP]
+[\fB\-V\fP] [\fIfile\fP ...]
+.SH DESCRIPTION
+.B netphos
+predicts phosphorylation sites in eukaryotic proteins using ensembles of
+neural networks. Both kinase specific and generic predictions
+are performed. The method is described in detail in the references quoted
+below.
+
+.B Input
+
+The input sequences are read from \fIfile\fP or, if no file is specified,
+from \fIstdin\fP. The required input format is \fBFASTA\fP. The non-standard
+amino acid symbols in the input (not in <\fBACDEFGHIKLMNPQRSTVWY\fP>)
+will be replaced with \fBX\fP (undefined) prior to processing.
+
+Syntax errors in the input are reported to \fIstderr\fP. The entry names
+are truncated to 20 characters. Special characters (other
+than \fBA-Za-z0-9+,-.\fP) in the entry names are replaced with
+the underscore (\fB_\fP). The nameless entries, if any, are given
+unique names.
+
+If the input entry names are not unique, or if the entry
+name modifications mentioned above result in non-unique
+names only the first encountered entry with a given name
+will be considered. Thus, the output entries always have
+unique names.
+
+.B Output
+
+The default output is text; it will go to \fIstdout\fP. For each input
+sequence the length and the name of the sequence are stated followed by
+a table with the prediction results. The columns are as follows:
+
+    \fB*\fP Sequence name (see \fBInput\fP above)
+
+    \fB*\fP Residue number
+
+    \fB*\fP Residue
+
+    \fB*\fP Sequence context: a sequence fragment centered on
+      the residue in question with flanks of 4 residues;
+
+    \fB*\fP Prediction score: a number in the range [0.000-1.000];
+      when the score is above \fB0.5\fP the residue is a predicted
+      phosphorylation site, the higher the score the more
+      secure the prediction;
+
+    \fB*\fP Kinase (for kinase specific predictions) or "\fIunsp\fP"
+      (unspecified, for generic predictions)
+
+    \fB*\fP Answer: "\fIYES\fP" if the score is above \fB0.5\fP and a dot
+      (".") otherwise.
+
+Each table row reports the results of the prediction for one sequence residue
+(\fBS\fP, \fBT\fP or \fBY\fP) and one specific kinase. Thus, there are several
+rows for a given residue, sorted by score, in decreasing order. It is possible
+to select a subset of predictions to run 
+(\fB\-2\fP,\fB\-k\fP,\fB\-s\fP,\fB\-t\fP,\fB\-y\fP)
+and a subset of scores to display
+(\fB\-b\fP,\fB\-c\fP).
+
+After the table, the whole sequence is printed alongside a summary of the
+predicted phosphorylation sites and their positions.
+
+An alternative output format may be chosen (\fB\-f\fP). Currrently, only
+.B GFF
+is supported (see below).
+
+A graphical illustration of the predictions (\fB\-d,\-g\fP) can be generated
+(independent of the output format).
+.SH OPTIONS
+.TP
+.B \-2
+Run generic predictions only, as in NetPhos 2.0
+(see http://www.cbs.dtu.dk/services/NetPhos-2.0/).
+.TP
+.B \-b
+Report only the best (highest) score for each residue.
+.TP
+.BI "\-c" " cutoff"
+Report only the scores higher than \fIcutoff\fP. Choosing \fB0.5\fP implies
+reporting only the predicted sites.
+.TP
+.BI "\-d" " dir"
+Put the graphics files in \fIdir\fP. The default is the current working
+directory. This option has no effect unless \fB\-g\fP is also given.
+.TP
+.BI "\-f" " fmt"
+Produce output in the format \fIfmt\fP rather than the default
+table. Currently \fBgff\fP is the only alternative (see
+http://www.sanger.ac.uk/Software/formats/GFF/).
+.TP
+.B \-g
+Generate graphics, plotting the highest score reported for each residue
+against the sequence position of that residue. One \fBGIF\fP file
+is generated for each sequence. NOTE: the graphics files only show
+a summary of the predictions as the lower scores are ignored.
+.TP
+.B \-h
+Show the allowed command line syntax and exit.
+.TP
+.B \-k
+Run kinase specific predictions only, as in NetPhosK 1.0
+(see http://www.cbs.dtu.dk/services/NetPhosK-1.0/).
+.TP
+.B \-s
+Predict only on the \fBS\fP (serine) residues. The default is to predict
+on all of \fBS, \fP\fBT\fP and \fBY\fP.
+.TP
+.B \-t
+Predict only on the \fBT\fP (threonine) residues. The default is to predict
+on all of \fBS, \fP\fBT\fP and \fBY\fP.
+.TP
+.B \-y
+Predict only on the \fBY\fP (tyrosine) residues. The default is to predict
+on all of \fBS, \fP\fBT\fP and \fBY\fP.
+.TP
+.B \-S
+Include the sequence in the output (\fBgff\fP only, the default output
+format always contains the sequence).
+.TP
+.B \-V
+Print the version number and the date of release. No other action
+will be performed.
+.TP
+.I "file ..."
+The input file to process. If not specified, \fIstdin\fP will be used
+instead. The format must be \fBFASTA\fP.
+.SH DIAGNOSTICS
+Exit status is \fB0\fP if no errors have occurred and non-zero
+otherwise. In the latter case an explanatory diagnostic message
+will appear on \fIstdout\fP.
+.SH VERSION
+.B netphos
+is under development and predictions for new kinases are added
+constantly. The current version is 3.1b, Nov 2005.
+.SH AUTHORS
+Nikolaj Blom, nikob@cbs.dtu.dk;
+.br
+Thomas Sicheritz-Ponten, thomas@cbs.dtu.dk.
+.SH REFERENCES
+Generic predictions:
+
+Blom N, Gammeltoft S, Brunak S (1999).
+"Sequence and structure-based prediction of eukaryotic protein
+phosphorylation sites".
+J Mol Biol. 1999 294(5):1351-62.
+
+Kinase specific predictions:
+
+Blom N, Sicheritz-Ponten T, Gupta R, Gammeltoft S, Brunak S (2004).
+"Prediction of post-translational glycosylation and phosphorylation
+of proteins from the amino acid sequence".
+Proteomics. 2004 4(6):1633-49. Review. 
+
+The \fBnetphos\fP website can also be consulted for details:
+
+.in +5n
+http://www.cbs.dtu.dk/services/NetPhos/
+.in 5n
+
+.SH FILES
+.B /usr/opt/bin/netphos
+.br
+.SH SEE ALSO
+\fBfasta\fP(1)
+

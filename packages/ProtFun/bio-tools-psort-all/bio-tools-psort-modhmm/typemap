@@ -1,0 +1,2 @@
+TYPEMAP
+Bio::Tools::PSort::ModHMM::HelixSites * T_PTROBJ

@@ -1,0 +1,26 @@
+#IncludeRegexLine: ^[ 	]*#[ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/cmgfunc/ProtFun/ProtFun/seg-1/src/nseg/genwin.c
+genwin.h
+/home/cmgfunc/ProtFun/ProtFun/seg-1/src/nseg/genwin.h
+
+/home/cmgfunc/ProtFun/ProtFun/seg-1/src/nseg/genwin.h
+stdio.h
+-
+fcntl.h
+-
+ctype.h
+-
+math.h
+-
+
+/home/cmgfunc/ProtFun/ProtFun/seg-1/src/nseg/nmerge.c
+genwin.h
+/home/cmgfunc/ProtFun/ProtFun/seg-1/src/nseg/genwin.h
+

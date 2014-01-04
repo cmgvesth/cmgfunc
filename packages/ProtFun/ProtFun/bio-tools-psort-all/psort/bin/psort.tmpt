@@ -1,0 +1,406 @@
+#! /usr/bin/perl
+
+use Bio::Tools::PSort::Report::Formatter;
+use Bio::Tools::PSort;
+use Bio::SeqIO;
+use Bio::Tools::PSort::Constants qw(:all);
+
+use Getopt::Long;
+use Data::Dumper;
+
+use strict;
+
+our $ENV;
+
+sub usage {
+
+  $0 =~ /^.*\/(.+)/;
+  print("Usage: $1 [-p|-n] [OPTIONS] [SEQFILE]\n");
+  print("Runs $1 on the sequence file SEQFILE .  If SEQFILE isn't provided\n");
+  print("then sequences will be read from STDIN.\n");
+  print("  --help, -h        Displays usage information\n");
+  print("  --positive, -p    Gram positive bacteria\n");
+  print("  --negative, -n    Gram negative bacteria\n");
+  print("  --archaea, -a     Archaea\n");
+  print("  --cutoff, -c      Sets a cutoff value for reported results\n");
+  print("  --divergent, -d   Sets a cutoff value for the multiple\n");
+  print("                    localization flag\n");
+  print("  --matrix, -m      Specifies the path to the pftools instalation.  If\n");
+  print("                    not set, defaults to the value of the PSORT_PFTOOLS\n");
+  print("                    environment variable.\n");
+  print("  --format, -f      Specifies sequence format (default is FASTA)\n");
+  print("  --exact, -e       Skip SCLBLASTe (useful for batch runs of data\n");
+  print("                    against itself in SCLBLAST)\n");
+  print("  --output, -o      Specifies the format for the output (default is\n");
+  print("                    'normal'  Value can be one of: terse, long or normal\n");
+  print("  --root, -r        Specify PSORT_ROOT for running local copies.  If\n");
+  print("                    not set, defaults to the value of the PSORT_ROOT\n");
+  print("                    environment variable.\n");
+  print("  --server, -s      Specifies the PSort server to use\n");
+  print("  --verbose, -v     Be verbose while running\n");
+  print("  --x-skip-localization   \n");
+  print("  --version         Print the version of PSortb\n");
+
+  1;
+}
+
+MAIN: {
+  my ($cutoff, $server, $verbose, $format, $help, $output, $divergent);
+  my ($positive, $negative, $archaea, $exact) = 0;
+  my ($motifdb, $ompdb, $sighmm, $sigsvm, $sigprog, $bayes, $scldb);
+  my ($fname, $psort, $sio, $version);
+  my ($slpatternsC, $slpatternsE, $slpatternsI, $slpatternsO, $slpatternsP);
+  my ($slmodelC, $slmodelE, $slmodelI, $slmodelO, $slmodelP);
+  my ($slmodelM, $slmodelW, $slpatternsM, $slpatternsW);
+  my ($profiledb, $pfscan, $profileids);
+  my ($hmmfile, $repfile, $hmmpath);
+  my ($xskiplocalization, @skippedlocalizations, $loctweak);
+  my $gram = '';
+  my $psort_analysis = 'psort';
+  my $psort_output = 'bayes';
+
+  my $root = '';
+  my $blastdir = '';
+  my $pftools = '';
+  my $pfscan_module = 'Profile';
+
+  # Pull any options off of the command line.
+  GetOptions('format=s' => \$format,  'server=s' => \$server,
+	     'verbose'  => \$verbose, 'help'     => \$help,
+	     'cutoff=f' => \$cutoff,  'output=s' => \$output,
+	     'root=s'   => \$root,
+	     'positive' => \$positive, 'negative' => \$negative,
+	     'archaea'  => \$archaea,
+	     'matrix=s' => \$pftools, 'divergent=f' => \$divergent,
+	     'exact'    => \$exact,   'version' => \$version,
+	     'x-skip-localization=s' => \$xskiplocalization);
+
+  # Display the usage information if we've been asked to.
+  usage && exit(0) if($help);
+  
+  # Output the version string
+  if($version) {
+      print "$Bio::Tools::PSort::VERSION_str\n";
+      exit(0);
+  }
+
+  # We can only have one of pos/neg, and we must have at least one.
+  usage && exit(0) if(!($positive ^ $negative ^ $archaea));
+
+  # Set some default values.
+  $format = 'fasta' if(! defined($format));
+  $fname = shift(@ARGV);
+  $cutoff = 0.75 if(! defined($cutoff));
+  $divergent = 0.5 if((! defined($divergent)) && $positive);
+  $divergent = 0.4 if((! defined($divergent)) && $negative);
+  $output = "normal" if(! defined($output));
+
+  # Do some fixups on the $server variable if it was defined or else assume
+  # we're running a local copy, and attempt to find PSORT_ROOT.
+  if(defined($server)) {
+      eval "require Bio::Tools::PSort::XMLRPC::Client";
+      $server = "http://$server" if(! ($server =~ /^https?:\/\//));
+      $server = "$server/RPC" if(! ($server =~ /\/RPC$/));
+  } else {
+    # Attempt to locate PSORT_ROOT.
+    if(! defined($root)) {
+      if(exists($ENV{PSORT_ROOT})) {
+	$root = $ENV{PSORT_ROOT};
+      } else {
+	print("Error: Unable to locate PSORT_ROOT.  Either set the PSORT_ROOT ");
+	print("environment variable or specify with --root command line ");
+	print("option.\n");
+	exit(1);
+      }
+
+      if((! -d $root) || (! -r $root)) {
+	print("Error: PSORT_ROOT ($root) either doesn't exist or is not readable.  ");
+	print("Please ensure it exists and has the correct permissions.\n");
+	exit(1);
+      }
+    }
+
+    # Attempt to locate a BLAST installation.
+    if(! defined($blastdir)) {
+	if(exists($ENV{BLASTDIR})) {
+	    $scldb = $ENV{BLASTDIR};
+	} else {
+	    print("Error: Unable to locate BLASTDIR.  Please set the BLASTDIR ");
+	    print("environment variable to point to your BLAST installation.\n");
+	    exit(1);
+	}
+    } elsif(! exists($ENV{BLASTDIR})) {
+	$ENV{BLASTDIR} = $blastdir;
+    }
+	
+
+    # Attempt to locate a PFTOOLS installation.
+    if(! defined($pftools)) {
+      if(exists($ENV{PSORT_PFTOOLS})) {
+	$pftools = $ENV{PSORT_PFTOOLS};
+      } else {
+	print("Error: Unable to locate PSORT_PFTOOLS.  Please set the PSORT_PFTOOLS ");
+	print("environment variable to point to your pftools installation.\n");
+	exit(1);
+      }
+    } elsif($pftools eq 'NOTINSTALLED') {
+	$pfscan_module = 'Null';
+    }
+
+    # Parsing skipped localizations list
+    if($xskiplocalization) {
+	my (@locs) = split ',', $xskiplocalization;
+
+	foreach my $loc (@locs) {
+	    $loc = uc $loc;
+	    unless(grep {m|^$loc?$|} AllLocalizations) {
+		print "Error: Localization $loc is not a valid localization\n";
+		exit(1);
+	    }
+
+	    { 
+	      no strict 'refs';
+	      push @skippedlocalizations, $loc->();
+	    }
+	}
+	
+    }
+
+    if($positive) { $gram = 'grampos'; }
+    elsif($negative) { $gram = 'gramneg'; }
+    elsif($archaea) { $gram = 'archaea'; }
+    else { die "Error: no type specified!\n"; }
+
+    $motifdb = "$root/conf/analysis/motif/$gram/motifs.txt";
+    $ompdb   = "$root/conf/analysis/omp-motif/omp-motifs.txt";
+    $sighmm  = "$root/conf/analysis/signal/$gram/model.hmm";
+    $sigsvm  = "$root/conf/analysis/signal/$gram/model.svm";
+    $sigprog = "$root/conf/analysis/signal/$gram/check-sig";
+    $bayes  = "$root/conf/output/bayesian/$gram/bayes.model";
+    $scldb   = "$root/conf/analysis/sclblast/$gram/sclblast";
+
+    $hmmfile = "$root/conf/analysis/modhmm/S_TMHMM_0.92b.hmg";
+    $repfile = "$root/conf/analysis/modhmm/replacement_letter_multi.rpl";
+    $hmmpath = "$root/conf/analysis/modhmm/";
+
+    ###################PROFILE FILES###############################################
+    $pfscan = "$pftools/pfscan";
+    $profiledb = "$root/conf/analysis/profile/$gram/ps_ALL";
+    $profileids = "$root/conf/analysis/profile/$gram/profile_ids";
+
+    ####################SVM FILES #############################################
+ 
+    # Gram negative SVMs #
+    if($negative) {
+	$slmodelC = "$root/conf/analysis/subloc/gramneg/Cytoplasmic/SVM_MODEL.txt";
+	$slpatternsC = "$root/conf/analysis/subloc/gramneg/Cytoplasmic/fre_patterns.txt";
+    
+	$slmodelI = "$root/conf/analysis/subloc/gramneg/Innermembrane/SVM_MODEL.txt";
+	$slpatternsI = "$root/conf/analysis/subloc/gramneg/Innermembrane/fre_patterns.txt";
+    
+	$slmodelO = "$root/conf/analysis/subloc/gramneg/Outermembrane/SVM_MODEL.txt";
+	$slpatternsO = "$root/conf/analysis/subloc/gramneg/Outermembrane/fre_patterns.txt";
+	
+	$slmodelE = "$root/conf/analysis/subloc/gramneg/Extracellular/SVM_MODEL.txt";
+	$slpatternsE = "$root/conf/analysis/subloc/gramneg/Extracellular/fre_patterns.txt";
+
+	$slmodelP = "$root/conf/analysis/subloc/gramneg/Periplasmic/SVM_MODEL.txt";
+	$slpatternsP = "$root/conf/analysis/subloc/gramneg/Periplasmic/fre_patterns.txt";
+    } elsif($positive) {
+	$slmodelC = "$root/conf/analysis/subloc/grampos/Cytoplasmic/SVM_MODEL.txt";
+	$slpatternsC = "$root/conf/analysis/subloc/grampos/Cytoplasmic/fre_patterns.txt";
+    
+	$slmodelM = "$root/conf/analysis/subloc/grampos/Membrane/SVM_MODEL.txt";
+	$slpatternsM = "$root/conf/analysis/subloc/grampos/Membrane/fre_patterns.txt";
+    
+	$slmodelW = "$root/conf/analysis/subloc/grampos/Cellwall/SVM_MODEL.txt";
+	$slpatternsW = "$root/conf/analysis/subloc/grampos/Cellwall/fre_patterns.txt";
+	
+	$slmodelE = "$root/conf/analysis/subloc/grampos/Extracellular/SVM_MODEL.txt";
+	$slpatternsE = "$root/conf/analysis/subloc/grampos/Extracellular/fre_patterns.txt";
+    } elsif($archaea) {
+	$slmodelC = "$root/conf/analysis/subloc/archaea/Cytoplasmic/SVM_MODEL.txt";
+	$slpatternsC = "$root/conf/analysis/subloc/archaea/Cytoplasmic/fre_patterns.txt";
+    
+	$slmodelM = "$root/conf/analysis/subloc/archaea/Membrane/SVM_MODEL.txt";
+	$slpatternsM = "$root/conf/analysis/subloc/archaea/Membrane/fre_patterns.txt";
+    
+	$slmodelW = "$root/conf/analysis/subloc/archaea/Cellwall/SVM_MODEL.txt";
+	$slpatternsW = "$root/conf/analysis/subloc/archaea/Cellwall/fre_patterns.txt";
+	
+	$slmodelE = "$root/conf/analysis/subloc/archaea/Extracellular/SVM_MODEL.txt";
+	$slpatternsE = "$root/conf/analysis/subloc/archaea/Extracellular/fre_patterns.txt";
+    } else {
+	die "We should never be here\n";
+    }
+
+  }
+
+  # Create either a remote or local version of PSort, depending on the value
+  # of the $server variable.
+  if(! defined($server)) {
+    print(STDERR "* Using $root as PSort root directory\n")
+	if($verbose);
+    $psort = new Bio::Tools::PSort();
+
+
+    # Comparison function for SCL-BLASTe
+    my $SCLSub = sub {
+	my $res = shift;
+
+	if($res->localization =~ /Unknown/) {
+	    return 1;
+	}
+
+	return 0;
+    };
+    if(! defined($exact)) { $SCLSub = sub { 1 }; }
+
+    $psort->install('Bayesian', 'Bayesian', {-model => $bayes });
+    $psort->add_path("bayes", "output", ['Bayesian', sub { 1 }]);
+
+    if($negative) {
+	$psort->install('OMPMotif', 'OMPMotif-', { -database => $ompdb });
+	$psort->install('ModHMM', 'ModHMM-', { -hmmfile => $hmmfile,
+					       -repfile => $repfile,
+					       -path => $hmmpath,
+					      -loc => 'CytoplasmicMembrane' });
+	$psort->install('Signal', 'Signal-', { -svm => $sigsvm, -hmm => $sighmm,
+					      -program => $sigprog });
+	$psort->install('SVMLoc', 'CytoSVM-', { -model => $slmodelC, 
+					       -patterns => $slpatternsC});
+	$psort->install('SVMLoc', 'ECSVM-', { -model => $slmodelE, 
+					       -patterns => $slpatternsE});
+	$psort->install('SVMLoc', 'CMSVM-', { -model => $slmodelI, 
+					       -patterns => $slpatternsI});
+	$psort->install('SVMLoc', 'OMSVM-', { -model => $slmodelO, 
+					       -patterns => $slpatternsO});
+	$psort->install('SVMLoc', 'PPSVM-', { -model => $slmodelP, 
+					       -patterns => $slpatternsP});
+	$psort->install('Motif', 'Motif-', { -database => $motifdb });
+	$psort->install('SCLBlast', 'SCL-BLAST-', { -database => $scldb, -exact => 0 });
+	$psort->install('SCLBlast', 'SCL-BLASTe-', { -database => $scldb, -exact => 1 });
+	$psort->install("$pfscan_module", 'Profile-', {-database => $profiledb,
+					       -program => $pfscan, 
+					       -profileids => $profileids } );
+	$psort->add_path("psort", "analysis", ['SCL-BLASTe-', $SCLSub,
+					       ['SCL-BLAST-', sub { 1 },
+						['ModHMM-', sub { 1 },
+						 ['OMPMotif-', sub { 1 },
+						  ['Motif-', sub { 1 },
+						   ['CytoSVM-', sub { 1 } ,
+						    ['ECSVM-', sub { 1 } ,
+						     ['CMSVM-', sub { 1 } ,
+						      ['OMSVM-', sub { 1 } ,
+						       ['PPSVM-', sub { 1 } ,
+							['Profile-', sub { 1 },
+							['Signal-']]]]]]]]]]]]);
+    } elsif($positive) {
+	$psort->install('ModHMM', 'ModHMM+', { -hmmfile => $hmmfile,
+					       -repfile => $repfile,
+					       -path => $hmmpath,
+					       -loc => 'CytoplasmicMembrane' });
+	$psort->install('Signal', 'Signal+', { -svm => $sigsvm, -hmm => $sighmm,
+					      -program => $sigprog, -gram => 'Positive' });
+	$psort->install('SVMLoc', 'CytoSVM+', { -model => $slmodelC, 
+					       -patterns => $slpatternsC});
+	$psort->install('SVMLoc', 'ECSVM+', { -model => $slmodelE, 
+					       -patterns => $slpatternsE});
+	$psort->install('SVMLoc', 'CMSVM+', { -model => $slmodelM, 
+					       -patterns => $slpatternsM});
+	$psort->install('SVMLoc', 'CWSVM+', { -model => $slmodelW, 
+					       -patterns => $slpatternsW});
+    $psort->install('Motif', 'Motif+', { -database => $motifdb });
+    $psort->install('SCLBlast', 'SCL-BLAST+', { -database => $scldb, -exact => 0 });
+    $psort->install('SCLBlast', 'SCL-BLASTe+', { -database => $scldb, -exact => 1 });
+    $psort->install("$pfscan_module", 'Profile+', {-database => $profiledb,
+					   -program => $pfscan, 
+					   -profileids => $profileids } );
+
+	$psort->add_path("psort", "analysis", ['SCL-BLASTe+', $SCLSub,
+					       ['ModHMM+', sub { 1 },
+						['SCL-BLAST+', sub { 1 },
+						 ['Motif+', sub { 1 },
+						  ['Profile+', sub { 1 },
+						   ['CytoSVM+', sub { 1 } ,
+						    ['ECSVM+', sub {1} ,
+						     ['CMSVM+', sub {1},
+						      ['CWSVM+', sub {1},
+						       ['Signal+']
+						      ]]]]]]]]]);
+     } elsif($archaea) {
+	$psort->install('ModHMM', 'ModHMM_a', { -hmmfile => $hmmfile,
+					       -repfile => $repfile,
+					       -path => $hmmpath,
+					       -loc => 'CytoplasmicMembrane' });
+	$psort->install('Signal', 'Signal_a', { -svm => $sigsvm, -hmm => $sighmm,
+					      -program => $sigprog, -gram => 'Archaea' });
+	$psort->install('SVMLoc', 'CytoSVM_a', { -model => $slmodelC, 
+					       -patterns => $slpatternsC});
+	$psort->install('SVMLoc', 'ECSVM_a', { -model => $slmodelE, 
+					       -patterns => $slpatternsE});
+	$psort->install('SVMLoc', 'CMSVM_a', { -model => $slmodelM, 
+					       -patterns => $slpatternsM});
+	$psort->install('SVMLoc', 'CWSVM_a', { -model => $slmodelW, 
+					       -patterns => $slpatternsW});
+	$psort->install('Motif', 'Motif_a', { -database => $motifdb });
+	$psort->install('SCLBlast', 'SCL-BLAST_a', { -database => $scldb, -exact => 0 });
+	$psort->install('SCLBlast', 'SCL-BLASTe_a', { -database => $scldb, -exact => 1 });
+	$psort->install("$pfscan_module", 'Profile_a', { -database => $profiledb,
+						  -program => $pfscan, 
+						  -profileids => $profileids } );
+
+	$psort->add_path("psort", "analysis", ['SCL-BLASTe_a', $SCLSub,
+					       ['ModHMM_a', sub { 1 },
+						['SCL-BLAST_a', sub { 1 },
+						 ['Motif_a', sub { 1 },
+						  ['Profile_a', sub { 1 },
+						   ['CytoSVM_a', sub { 1 } ,
+						    ['ECSVM_a', sub {1} ,
+						     ['CMSVM_a', sub {1},
+						      ['CWSVM_a', sub {1},
+						       ['Signal_a']
+						      ]]]]]]]]]);  # add a bracket back later
+   } else {
+	die "We should never be here.\n";
+    }
+
+
+  } else {
+    # Create a new PSort object.
+    print(STDERR "* Using \"$server\" as remote PSort server\n")
+      if($verbose);
+    if($negative) { $psort_analysis = 'psortn'; $psort_output = 'bayesn'; }
+    if($positive) { $psort_analysis = 'psortp'; $psort_output = 'bayesp'; }
+    if($archaea)  { $psort_analysis = 'psorta'; $psort_output = 'bayesa'; }
+    $psort = new Bio::Tools::PSort::XMLRPC::Client(-server => $server);
+  }
+
+  # Figure out whether or not we're getting the sequences from a file or from
+  # STDIN and open up a Bio::SeqIO on it.
+  if($fname) {
+    if((-f $fname) && (-r $fname)) {
+      print(STDERR "* Reading sequences from file \"$fname\"\n") if($verbose);
+      open(SEQS, $fname) || die("Error: open $fname: $!\n");
+      $sio = new Bio::SeqIO(-fh => \*SEQS, -format => $format);
+    } else {
+      die("Error: file \"$fname\" doesn't exist or isn't readable\n");
+    }
+  } else {
+    print(STDERR "* Reading sequences from STDIN\n") if($verbose);
+    $sio = new Bio::SeqIO(-fh => \*STDIN, -format => $format);
+  }
+
+  # Ready for prime time - go forth and PSort.
+  my $format = new Bio::Tools::PSort::Report::Formatter();
+  my @reps;
+  while(my $seq = $sio->next_seq) {
+    my $rep;
+
+    eval { $rep = $psort->classify($seq, {analysis => $psort_analysis, output => $psort_output}); };
+    print("Fatal error: $@\n") && exit(1)
+      if($@);
+    push(@reps, $rep);
+  }
+  print($format->format($output, {-cutoff => $cutoff, -gram => $gram, -mcutoff => $divergent, -psort => $psort, -skiplocalizations => \@skippedlocalizations}, @reps));
+}

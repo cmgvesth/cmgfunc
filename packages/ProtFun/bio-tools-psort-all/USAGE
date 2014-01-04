@@ -1,0 +1,64 @@
+Submitting a Sequence for Analysis to Standalone PSORTb
+
+Sequence File: One or more sequences in FASTA format can be submitted to standalone PSORTb,
+provided they are all contained within one file (e.g. mysequences.txt) and are all from
+the same Gram class of organism. If you have both Gram-negative and Gram-positive
+sequences you wish to analyze, they must be divided into two files and run separately.
+
+Command line syntax: Standalone PSORTb contains several options and arguments, which are
+described below. The most basic command, however, which will be sufficient for most
+instances, is:
+
+ $ psort [-p|-n|-a] mysequences.txt > mysequences.out
+
+ * psort calls the PSORTb program
+ * -p (Gram-positive) or -n (Gram-negative) or -a (Archaea) tells the program which
+    predictive model to use
+ * mysequences.txt is the name of your FASTA file containing the sequences to be analyzed
+ * > mysequences.out sends the output to a new file that will be created called
+    mysequences.out. If no > is used, the output will be written to the terminal display.
+
+      Usage: psort [-p|-n|-a] [OPTIONS] [SEQFILE]
+      Runs psort on the sequence file SEQFILE . If SEQFILE isn't provided then sequences will be read from STDIN.
+      --help, -h Displays usage information
+      --positive, -p Gram positive bacteria
+      --negative, -n Gram negative bacteria
+      --archaea, -a Archaea
+      --cutoff, -c Sets a cutoff value for reported results
+      --divergent, -d Sets a cutoff value for the multiple
+        localization flag
+      --matrix, -m Specifies the path to the pftools instalation. If
+        not set, defaults to the value of the PSORT_PFTOOLS
+        environment variable.
+      --format, -f Specifies sequence format (default is FASTA)
+      --output, -o Specifies the format for the output (default is
+        'normal' Value can be one of: terse, long or normal
+      --root, -r Specify PSORT_ROOT for running local copies. If
+        not set, defaults to the value of the PSORT_ROOT
+        environment variable.
+      --server, -s Specifies the PSort server to use
+      --verbose, Be verbose while running
+      --version, Print the version of PSORTb used
+      --x-skip-localization, Rewrite the comma separated list of localizations
+        to Unknown if predicted
+      --version, Print the version of PSortb
+
+Help: Typing psort -h at the command prompt will bring up a list of available options and usage instructions.
+
+Advanced Gram Stain Selection
+
+There are some organisms whose Gram stains do not accurately reflect their cellular structure.
+Two additional analysis options are provided for these organisms by the web version of 
+PSORTb v.3.0 -- "Positive with outer membrane" and "Negative without outer membrane". 
+
+By selecting "Advanced" in the Gram stain option, users can choose to analyze organisms that
+stain Gram-positive but also have an outer membrane, such as Deinococcus spp, Mycobacterium spp,
+and Veillonellaceae family of the Firmicutes phylum. The latter option allows users to
+analyze organisms that stain Gram-negative but have no outer membrane, such as organisms
+of the Tenericutes phylum, eg. Mycoplasma spp.
+
+To perform such analysis in the command line version of PSORTB we recommend the following:
+For "Positive with outer membrane" use the command line option: -n
+For "Negative without outer membrane" use the command line option -p --x-skip-localization=Cellwall
+
+This will give an output equivilent to the web version of PSORTb.

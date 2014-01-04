@@ -1,0 +1,40 @@
+Revision history for Perl extension Bio::Tools::PSort
+
+3.0.3 - Wed Jul 28 14:30:00 PST 2010
+	Improved installation process, properly tries to detect
+	needed libraries and local system misconfigurations
+
+3.0.2 - Mon May 31 15:45:00 PST 2010
+	Fixed an issue with the SCLBlast database, en error was
+	made when building the file
+
+3.0.1 - Tue May 19 23:00:00 PST 2010
+	Fixed a bug causing wrong predictions for some proteins
+
+2.0.4 - Tue Mar  8 10:20:00 PST 2005
+	Modified HMMTOP module to suppress warning messages
+	on some platforms
+	Added a stronger message about Bioperl/BLAST bug
+
+2.0.3 - Tue Jan 18 16:00:00 PST 2005
+        Fixed a bug with regard to multiple localization
+        flagging - all non-cyctoplasmic proteins identified
+        by the Signal module caused the flag to be
+        triggered.
+
+2.0.1 - Mon Oct 18 15:00:00 PST 2004
+	Added documentation for OS X support.
+	Reworded documentation for module requirements
+	for better clarity.
+
+2.0.0 - Mon Jun 14 15:55:00 PST 2004
+	Added support for Gram positive bacteria.
+	Added new SVM-based classification modules and
+	a profile module.
+
+1.1.4 - Wed Dec 24 11:30:00 PSD 2003
+	Modified SCLBlast module to recognize and report
+	100% matches to the known protein database
+
+1.1.3 - Wed Jul  9 20:30:30 PDT 2003
+	First public version of Bio::Tools::PSort

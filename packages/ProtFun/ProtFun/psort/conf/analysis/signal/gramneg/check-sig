@@ -1,0 +1,23 @@
+#! /usr/bin/perl
+
+use Getopt::Long;
+
+use Bio::Tools::Signal;
+use Bio::Seq;
+
+use strict;
+
+MAIN: {
+  my $svm = "model.svm";
+  my $hmm = "model.hmm";
+
+  # Get the SVM/HMM model filenames off the command line.
+  GetOptions('svm=s' => \$svm, 'hmm=s' => \$hmm);
+
+  if(my $seq = shift(@ARGV)) {
+    my $sig = new Bio::Tools::Signal(-svm => $svm, -hmm => $hmm);
+    my $rep = $sig->analyze(new Bio::Seq(-seq => $seq));
+
+    print($rep->signal_peptide . "\n");
+  }
+}

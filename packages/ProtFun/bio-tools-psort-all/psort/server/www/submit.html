@@ -1,0 +1,60 @@
+<html>
+ <head>
+  <title>PSORT-B: Submit a Sequence</title>
+ </head>
+ <body bgcolor="#ffffff">
+  <div align="center">
+  <form method="POST" action="results.pl" enctype="multipart/form-data">
+   <table>
+    <tr bgcolor="#eeeeee"> 
+     <td align="center"> <font face="Arial, Helvetica, sans-serif">
+      <br>
+      Copy and paste your FASTA sequences below
+      <br>
+      <textarea rows="15" cols="80" name="seqs"></textarea>
+      <br>
+      <br>
+      <table>
+       <tr> 
+        <td><i><b>or</b></i> upload from file:</td>
+        <td><input type="file" name="filename"></td>
+       </tr>
+       <tr> 
+        <td>Output format:</td>
+        <td>
+	 <select name="format">
+          <option value="html">Normal 
+          <option value="terse">Tab delimited (terse format) 
+          <option value="long">Tab delimited (long format)
+         </select> 
+        </td>
+       </tr>
+       <tr> 
+        <td>Gram stain:</td>
+        <td>
+	 <select name="gram">
+          <option value="unknown">Select Gram
+          <option value="negative">Negative
+          <option value="positive">Positive 
+         </select> 
+        </td>
+       </tr>
+      </table>
+      <br>
+      <input type="submit" name="submit" value=" Submit ">
+      <input type="reset" name="reset" value=" Clear "> 
+      <br><br>
+     </td>
+    </tr>
+   </table>
+  </form>
+  </div>
+ </body>
+</html>
+
+
+
+
+
+
+

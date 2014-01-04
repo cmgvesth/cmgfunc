@@ -1,0 +1,74 @@
+TYPEMAP
+
+HMM *				T_HMM
+HMMHit*				T_HMMHIT
+HMMGlobalHit*			T_HMMGLOBALHIT
+HMMDomainHit*			T_HMMDOMAINHIT
+HMMReport*			T_HMMREPORT
+float				T_FLOAT
+
+OUTPUT
+
+T_HMM
+	if( $var == NULL )	XSRETURN_UNDEF;
+	sv_setref_pv( $arg, "Algorithm::HMM", (void*)$var );
+
+T_HMMHIT
+	if( $var == NULL )	XSRETURN_UNDEF;
+	sv_setref_pv( $arg, "Algorithm::HMM::Hit", (void*)$var );
+
+T_HMMGLOBALHIT
+	if( $var == NULL )	XSRETURN_UNDEF;
+	sv_setref_pv( $arg, "Algorithm::HMM::Hit::Global", (void*)$var );
+
+T_HMMDOMAINHIT
+	if( $var == NULL )	XSRETURN_UNDEF;
+	sv_setref_pv( $arg, "Algorithm::HMM::Hit::Domain", (void*)$var );
+
+T_HMMREPORT
+	if( $var == NULL )	XSRETURN_UNDEF;
+	sv_setref_pv( $arg, "Algorithm::HMM::Report", (void*)$var );
+
+INPUT
+
+T_HMM
+	if( sv_isobject($arg) && sv_isa($arg, \"Algorithm::HMM\") ) {
+		$var = ($type)SvIV((SV*)SvRV( $arg ));
+	} else {
+		warn( \"${Package}::$func_name() -- $var is not an Algorithm::HMM object\" );
+		XSRETURN_UNDEF;
+	}
+
+T_HMMHIT
+	if( sv_isobject($arg) && sv_isa($arg, \"Algorithm::HMM::Hit\") ) {
+		$var = ($type)SvIV((SV*)SvRV( $arg ));
+	} else {
+		warn( \"${Package}::$func_name() -- $var is not an Algorithm::HMM::Hit object\" );
+		XSRETURN_UNDEF;
+	}
+
+T_HMMGLOBALHIT
+	if( sv_isobject($arg) && sv_isa($arg, \"Algorithm::HMM::Hit::Global\") ) {
+		$var = ($type)SvIV((SV*)SvRV( $arg ));
+	} else {
+		warn( \"${Package}::$func_name() -- $var is not an Algorithm::HMM::Hit::Global object\" );
+		XSRETURN_UNDEF;
+	}
+
+T_HMMDOMAINHIT
+	if( sv_isobject($arg) && sv_isa($arg, \"Algorithm::HMM::Hit::Domain\") ) {
+		$var = ($type)SvIV((SV*)SvRV( $arg ));
+	} else {
+		warn( \"${Package}::$func_name() -- $var is not an Algorithm::HMM::Hit::Domain object\" );
+		XSRETURN_UNDEF;
+	}
+
+T_HMMREPORT
+	if( sv_isobject($arg) && sv_isa($arg, \"Algorithm::HMM::Report\") ) {
+		$var = ($type)SvIV((SV*)SvRV( $arg ));
+	} else {
+		warn( \"${Package}::$func_name() -- $var is not an Algorithm::HMM::Report object\" );
+		XSRETURN_UNDEF;
+	}
+
+	

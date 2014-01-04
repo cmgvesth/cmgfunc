@@ -1,0 +1,33 @@
+#!/usr/bin/perl
+
+use strict;
+
+use lib '../lib';
+
+use Bio::Tools::Run::SCLBlast;
+
+use Data::Dumper;
+use Bio::Seq;
+
+my $seq = Bio::Seq->new( -seq => 'MLGVGAGVVAVLVALVMFMGKEPSELLYSNLDLKEASEVTQALDQAGIKYETKGDGSTIMVPRDKVASARLMVAGKGLVSSGSIGYEIFDTNNALGQTDFVQQLNRQRALQGELERTIKAMQGVNSVRVHLVLPKRQLFEEDAEQPSAAVTIGVGSREPSSDMVRAIQNLVSSSVPNMKAEKVAVIDQHGKTLSAPSDESLAGKMAQDRKSEVEARIAKTVKDMIEGVLGPGKARVNVTAELDLNRVTTQEERFDPDGQVIRSESTTEASSQENKNDDNAGVTAAANVPGGQGANGFQQLGSRTGQNDAVTNYEISKSVTTTVQEPGTIKKIAVAVAIDGVSAPMAADGKPGAYTPRTAQEIQQIEELVKTAVGFDAERGDQVRVTNIKFPQPEDQGLEEQGLLAGFDKNDIMRAAELGVLAVVALLILLFAVRPFIKNLSAPAPGQIALAGPSGGPPVTRLVTLADGTQQQVVVDQSGEPIALAGPPVSDIDQRIDIAKIEGQVKASSIKRVSEFVEKHPDESVAILRNWLHEST', -id => 'protein_sequence', -accession_number => '1');
+
+#my $seq = Bio::Seq->new( -seq => 'MLDNTRLRIAIQKSGRLSDDSRELLARCGIKINLHTQRLIAMAENMPIDILRVRDDDIPGLVMDGVVDLGIIGENVLEEELLNRRAQGEDPRYLTLRRLDFGGCRLSLATPVDEAWDGPAALDGKRIATSYPHLLKRYLDQKGVSFKSCLLNGSVEVAPRAGLADAICDLVSTGATLEANGLREVEVIYRSKACLIQRDGEMAQSKQELIDKLLTRIQGVIQARESKYIMMHAPSERLEEVIALLPGAERPTILPLAGEQQRVAMHMVSSETLFWETMEKLKALGASSILVLPIEKMME', -id => 'protein_sequence', -accession_number => '1');
+
+my $db = '/home.westgrid/lairdm/working/psort-2.1/Bio-Tools-PSort-3.0alpha/bio-tools-psort-all/psort/conf/analysis/sclblast/gramneg/sclblast_ALL';
+#my $db = '../psort/conf/analysis/sclblast/gramneg/sclblast';
+
+my $sclblast = new Bio::Tools::Run::SCLBlast( -database => $db, -exact => 0 );
+
+my $brep = $sclblast->blast($seq);
+
+#print Dumper($brep);
+my $hit = $brep->next_hit;
+
+if($hit) {
+    my @locs = $hit->localization;
+    my @seclocs = $hit->secondarylocalization;
+
+    print Dumper(@locs) . "\n";
+    print Dumper(@seclocs) . "\n";
+    print $hit->description . "\n";
+}

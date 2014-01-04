@@ -1,0 +1,1 @@
+/usr/bin/gcc      CMakeFiles/nseg.dir/nseg/nseg.c.o CMakeFiles/nseg.dir/nseg/genwin.c.o  -o nseg -rdynamic -lm 

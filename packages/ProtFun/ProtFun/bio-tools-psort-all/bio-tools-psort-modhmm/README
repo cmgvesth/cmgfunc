@@ -1,0 +1,105 @@
+Bio::Tools::PSort::ModHMM version 0.01
+======================================
+
+TABLE OF CONTENTS
+-----------------
+
+1) DESCRIPTION
+2) INSTALLATION
+3) DEPENDENCIES
+4) BUGS
+5) Algorithm::HMM COPYRIGHT AND LICENCE
+6) AUTHOR INFORMATION
+
+
+1) DESCRIPTION
+--------------
+
+Bio::Tools::PSort::ModHMM was originally written by Matthew Laird of Simon
+Fraser University Brinkman Laboratory and provides Perl bindings for
+the Prodiv_TMHMM package by Hakan Viklund.
+
+Bio::Tools::PSort::ModHMM is based on Prodiv_TMHMM, for more information
+on Prodiv_TMHMM, see the package homepage at:
+
+http://www.pdc.kth.se/~hakanv/prodiv-tmhmm/
+
+
+The author invites feedback on Bio::Tools::PSort::ModHMM. If you find a
+bug, please send the information described in the BUGS section below.
+
+
+2) INSTALLATION
+---------------
+
+Bio::Tools::PSort::ModHMM has been tested under linux/x86, linux/i64,
+other operating systems are not supported at this time.  However if you
+require Bio::Tools::PSort::ModHMM under a different OS, please email us and we
+can work with you to port it, lack of support is simply due to us
+not having access to machines of other architectures.
+
+For i64 installation instructions please see README.x86_64
+
+Before installation, you will need to compile the libmodhmm library.
+All the required source files for these libraries are contained
+in the modhmm0.92b/ directory.  The library can be compiled as follows:
+
+  cd modhmm0.92b/
+  make
+  cp libmodhmm.so /usr/local/lib
+
+  ldconfig
+
+Installation of the Bio::Tools::PSort::ModHMM module is then as follows:
+
+   perl Makefile.PL
+   make
+   make test
+   make install
+
+
+3) DEPENDENCIES
+---------------
+
+Bio::Tools::PSort::ModHMM does require the libmodhmm library to be
+compiled and installed.  This library is distributed with this
+module.
+
+
+4) BUGS
+-------
+
+If you find a bug, please report it to the author along with the
+following information:
+
+    * version of Perl (output of 'perl -V' is best)
+    * version of Bio::Tools::PSort::ModHMM
+    * operating system type and version
+    * exact text of error message or description of problem
+    * example model files/data being classified
+
+If we don't have access to a system similar to yours, you may be asked
+to insert some debugging lines and report back on the results.
+The more help and information you can provide, the better.
+
+
+5) Bio::Tools::PSort::ModHMM COPYRIGHT AND LICENCE
+--------------------------------------------------
+The Perl Bio::Tools::PSort::ModHMM  module is Copyright (C) 2006
+Matthew Laird and Fiona Brinkman.  All rights reserved.
+
+ModHMM is Copyright (C) Hakan Viklund.
+
+This program is licensed under the terms of the Gnu General Public
+License.  For more information on the GPL, see the LICENSE file
+included with this distribution.
+
+
+6) AUTHOR INFORMATION
+---------------------
+
+The Perl Bio::Tools::PSort::ModHMM module was originally written by
+Matthew Laird <matt@sfu.ca> of the Brinkman Laboratory at Simon Fraser
+University, Burnaby, BC, Canada.
+
+  http://www.pathogenomics.sfu.ca/brinkman

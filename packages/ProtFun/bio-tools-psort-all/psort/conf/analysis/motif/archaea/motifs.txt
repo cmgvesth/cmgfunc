@@ -1,0 +1,24 @@
+PS00077	CytoplasmicMembrane	[YWG][LIVFYWTA]{2}[VGS]H[LNP].V.{44,47}HH	COX1 Pattern - Cytoplasmic Membrane
+PS00192	CytoplasmicMembrane	[DENQ]...G[FYWMQ].[LIVMF]R..H	CYTOCHROME_B_HEME Pattern - Cytoplasmic Membrane
+PS00193	CytoplasmicMembrane	P[DE]W[FY][LFY]{2}	CYTOCHROME_B_QO Pattern - Cytoplasmic Membrane
+PS00217	CytoplasmicMembrane	[LIVMF].G[LIVMFA]{V}.G{KP}.{7}[LIFY]..[EQ].{6}[RK]	SUGAR_TRANSPORT_2 Pattern - Cytoplasmic Membrane
+PS00218	CytoplasmicMembrane	[STAGC]G[PAG].{2,3}[LIVMFYWA]{2}.[LIVMFYW].[LIVMFWSTAGC]{2}[STAGC]...[LIVMFYWT].[LIVMST]...[LIVMCTA][GA]E.{5}[PSAL]   AMINO_ACID_PERMEASE_1 Pattern - Cytoplasmic Membrane
+PS00274	Extracellular	[KT]..NW..T[DN]T	AEROLYSIN Pattern - Extracellular
+PS00277	Extracellular	YGG[LIV]T.{4}N	STAPH_STREP_TOXIN_1 Pattern - Extracellular
+PS00278	Extracellular	K..[LIVF].{4}[LIVF]D...R..L.{5}[LIV]Y	STAPH_STREP_TOXIN_2 Pattern - Extracellular
+PS00369	Cytoplasmic	G[LIVM]H[STAV]R[PAS][GSTA][STAMVN]	PTS_HPR_HIS Pattern - Cytoplasmic
+PS00589	Cytoplasmic	[GSTADE][KREQSTIV].{EPRK}{VPGL}.[KRDN]S[LIVMF]{2}{EVPL}[LIVM]{EATN}.[LIVM][GADE]	PTS_HPR_SER Pattern - Cytoplasmic
+PS00429	Extracellular	ARP...K.S.TNAYNVTT..[DN]G...YG	STAPHYLOCOAGULASE Pattern - Extracellular
+PS00449	CytoplasmicMembrane	[STAGN].[STAG][LIVMF]RL.[SAGV]N[LIVMT]	ATPASE_A Pattern - Cytoplasmic Membrane	
+PS00713	CytoplasmicMembrane	P.{0,1}G[DE].[LIVMF]{2}.[LIVM]{2}[KREQ][LIVM]{3}.P	NA_DICARBOXYL_SYMP_1 Pattern - Cytoplasmic Membrane
+PS00714	CytoplasmicMembrane	P.G.[STA].[NT][LIVMC]DG[STAN].[LIVM][FY]..[LIVM]..[LIVM][FY][LI][SA]Q	NA_DICARBOXYL_SYMP_2 Pattern - Cytoplasmic Membrane
+PS00872	CytoplasmicMembrane	[DG]...G...[DN].{6,8}[GA][KRHQ][FSA][KR][PT][FYW][LIVMWQ][LIV].[GAFV][GSTA]	NA_GALACTOSIDE_SYMP Pattern - Cytoplasmic Membrane
+PS00943	CytoplasmicMembrane	N...[DEH]..[LIMF]D..[VM].R[ST]..R.{4}G	UBIA Pattern - Cytoplasmic Membrane
+PS01022	CytoplasmicMembrane	[GA][GAS][LIVMFYWA][LIVM][GAS]D.[LIVMFYWT][LIVMFYW]G...[TAV][IV]...[GSTAV].[LIVMF]...[GA]	PTR2_1 Pattern - Cytoplasmic Membrane
+PS01023	CytoplasmicMembrane	[FYT]..[LMFY][FYV][LIVMFYWA].[IVG]N[LIVMAG]G[GSA][LIMF]	PTR2_2 Pattern - Cytoplasmic Membrane
+PS01072	Cellwall	[LVFYT].[DA].{2,5}[DNGSATPHY][FYWPDA].{4}[LIV]..[GTALV].{4,6}[LIVFYC]..G.[PGSTA].{2,3}[MFYA].[PGAV].{3,10}[LIVMA][STKR][RY].[EQ].[STALIVM]	SLH_DOMAIN Pattern - CellWall
+PS01219	CytoplasmicMembrane	D[FYWS]AG[GSC].{2}[IV].{3}[SAG]{2}.{2}[SAG][LIVMF].{3}[LIVMFYWA]{2}.[GK].R	AMMONIUM_TRANSP Pattern - Cytoplasmic Membrane
+PS01303	CytoplasmicMembrane	[GSDN]WT[LIVM].[FY]W.WW	BCCT Pattern - Cytoplasmic Membrane
+PS01327	CytoplasmicMembrane	[KR]GN[LIV]{2}D[LIVM]A[LIVM][GA][LIVM]{3}G	MSCL Pattern - Cytoplasmic Membrane	
+PS00755	CytoplasmicMembrane	[GST][LIVMF][LIVMFCA].[LIVMF][GSA][LIVM].P[LIVMFY]{2}.[AS][GSTQ][LIVMFAT]{3}[EQ][LIVMFA]{2}	SECY_1 Pattern - CytoplasmicMembrane
+PS00756	CytoplasmicMembrane	[LIVMFYW]{2}.[DE].[LIVM][STDNQ].{2,3}[GK][LIVMF][GST][NST]G.[GST][LIV][LIVFP]	SECY_2 Pattern - CytoplasmicMembrane

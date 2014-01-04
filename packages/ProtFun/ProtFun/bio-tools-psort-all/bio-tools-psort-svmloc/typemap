@@ -1,0 +1,33 @@
+TYPEMAP
+
+SVM *				T_SVM
+DataSet*			T_DATASET
+
+
+OUTPUT
+
+T_SVM
+	if( $var == NULL )	XSRETURN_UNDEF;
+	sv_setref_pv( $arg, "Bio::Tools::PSort::SVMLoc", (void*)$var );
+
+T_DATASET
+	if( $var == NULL )	XSRETURN_UNDEF;
+	sv_setref_pv( $arg, "Bio::Tools::PSort::SVMLoc::DataSet", (void*)$var );
+
+INPUT
+
+T_SVM
+	if( sv_isobject($arg) && sv_isa($arg, \"Bio::Tools::PSort::SVMLoc\") ) {
+		$var = ($type)SvIV((SV*)SvRV( $arg ));
+	} else {
+		warn( \"${Package}::$func_name() -- $var is not an Bio::Tools::PSort::SVMLoc object, received $arg\" );
+		XSRETURN_UNDEF;
+	}
+
+T_DATASET
+	if( sv_isobject($arg) && sv_isa($arg, \"Bio::Tools::PSort::SVMLoc::DataSet\") ) {
+		$var = ($type)SvIV((SV*)SvRV( $arg ));
+	} else {
+		warn( \"${Package}::$func_name() -- $var is not an Bio::Tools::PSort::SVMLoc::DataSet object\" );
+		XSRETURN_UNDEF;
+	}

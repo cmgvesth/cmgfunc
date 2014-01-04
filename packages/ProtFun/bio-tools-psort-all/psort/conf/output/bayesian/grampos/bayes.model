@@ -1,0 +1,254 @@
+{
+  
+
+ 'Motif+' => {
+	    Cytoplasmic   => {
+			       	Cytoplasmic 	=> 0.999,	
+			        Extracellular 	=> 0.001,
+				CytoplasmicMembrane 	=> 0.001,
+				Cellwall 	=> 0.001
+			     },
+	 
+	    Extracellular => {
+			      	Cytoplasmic 	=> 0.001,	
+			        Extracellular 	=> 0.999,
+				CytoplasmicMembrane 	=> 0.001,
+				Cellwall 	=> 0.001
+			     },
+
+	    CytoplasmicMembrane =>      {
+			      	Cytoplasmic 	=> 0.001,	
+			        Extracellular 	=> 0.001,
+				CytoplasmicMembrane 	=> 0.999,
+				Cellwall 	=> 0.001
+			     },
+	    Cellwall =>		
+			     { 
+				Cytoplasmic 	=> 0.001,	
+			        Extracellular 	=> 0.001,
+				CytoplasmicMembrane 	=> 0.001,
+				Cellwall 	=> 0.999
+			     }
+	
+	   },
+
+
+'Profile+'  => {	   
+	
+	    Cytoplasmic   => {
+			       	Cytoplasmic 	=> 0.999,	
+			        Extracellular 	=> 0.001,
+				CytoplasmicMembrane 	=> 0.001,
+				Cellwall 	=> 0.001
+			     },
+	 
+	    Extracellular => {
+			      	Cytoplasmic 	=> 0.001,	
+			        Extracellular 	=> 0.999,
+				CytoplasmicMembrane 	=> 0.001,
+				Cellwall 	=> 0.001
+			     },
+
+	    CytoplasmicMembrane =>      {
+			      	Cytoplasmic 	=> 0.001,	
+			        Extracellular 	=> 0.001,
+				CytoplasmicMembrane 	=> 0.999,
+				Cellwall 	=> 0.001
+			     },
+	    Cellwall =>		
+			     { 
+				Cytoplasmic 	=> 0.001,	
+			        Extracellular 	=> 0.001,
+				CytoplasmicMembrane 	=> 0.001,
+				Cellwall 	=> 0.999
+			     }
+	
+	   },
+
+
+
+
+  'Signal+' => {
+	       Cytoplasmic   => {
+			       	Cytoplasmic 	=> 0.001,	
+			        Extracellular 	=> 0.001,
+				CytoplasmicMembrane 	=> 0.001,
+				Cellwall 	=> 0.001
+			     },
+	 
+	    Extracellular => {
+			      	Cytoplasmic 	=> 0.001,	
+			        Extracellular 	=> 0.333,
+				CytoplasmicMembrane 	=> 0.333,
+				Cellwall 	=> 0.333
+			     },
+
+	    CytoplasmicMembrane =>      {
+			      	Cytoplasmic 	=> 0.001,	
+			        Extracellular 	=> 0.333,
+				CytoplasmicMembrane 	=> 0.333,
+				Cellwall 	=> 0.333
+			     },
+	    Cellwall =>		
+			     { 
+			      	Cytoplasmic 	=> 0.001,	
+			        Extracellular 	=> 0.333,
+				CytoplasmicMembrane 	=> 0.333,
+				Cellwall 	=> 0.333
+			     } 
+	      },
+  'SCL-BLAST+' => {
+		  Cytoplasmic   => {
+			       	Cytoplasmic 	=> 0.966,	
+			        Extracellular 	=> 0.001,
+				CytoplasmicMembrane 	=> 0.018,
+				Cellwall 	=> 0.001
+			     },
+	 
+	    	Extracellular => {
+			      	Cytoplasmic 	=> 0.017,	
+			        Extracellular 	=> 0.955,
+				CytoplasmicMembrane 	=> 0.016,
+				Cellwall 	=> 0.081
+			     },
+
+	    CytoplasmicMembrane =>      {
+			      	Cytoplasmic 	=> 0.001,	
+			        Extracellular 	=> 0.009,
+				CytoplasmicMembrane 	=> 0.984,
+				Cellwall 	=> 0.001
+			     },
+	    Cellwall =>		
+			     { 
+				Cytoplasmic 	=> 0.015,	
+			        Extracellular 	=> 0.018,
+				CytoplasmicMembrane 	=> 0.017,
+				Cellwall 	=> 0.950
+			     }  
+		},
+  'SCL-BLASTe+' => {
+                 Cytoplasmic   => {
+                                     Cytoplasmic   => 1,
+                                     CytoplasmicMembrane => 0,
+                                     Cellwall   => 0,
+                                     Extracellular => 0,
+                                    },
+                 CytoplasmicMembrane => {
+                                     Cytoplasmic   => 0,
+                                     CytoplasmicMembrane => 1,
+                                     Cellwall   => 0,
+                                     Extracellular => 0,
+                                    },
+                 Cellwall   => {
+                                     Cytoplasmic   => 0,
+                                     CytoplasmicMembrane => 0,
+                                     Cellwall   => 1,
+                                     Extracellular => 0,
+                                    },
+                 Extracellular => {
+                                     Cytoplasmic   => 0,
+                                     CytoplasmicMembrane => 0,
+                                     Cellwall   => 0,
+                                     Extracellular => 1,
+                                    }
+                },
+  
+'CytoSVM+' => {
+	       Cytoplasmic   => {
+				Cytoplasmic 	=> 0.750
+				  },
+		Extracellular => {
+				Cytoplasmic => 0.073
+			},
+	    	CytoplasmicMembrane => 	{
+				  Cytoplasmic   =>  0.115
+				  },
+
+	       Cellwall => {
+				   Cytoplasmic   =>  0.062
+			   	}	
+	 	
+	      },
+
+'ECSVM+' => {
+	      Cytoplasmic   => {
+				   Extracellular   =>  0.024
+				},
+	    
+	       Extracellular => {
+			        Extracellular 	=> 0.891
+				  },
+	       CytoplasmicMembrane => 	{
+				   Extracellular   =>  0.005
+				  },
+
+	       Cellwall => {
+				   Extracellular   =>  0.080
+			   	}	
+	
+	      },
+
+
+
+'CMSVM+' => {
+
+		Cytoplasmic   => {
+				   CytoplasmicMembrane   => 0.032
+				},
+	    
+	       Extracellular => {
+				    CytoplasmicMembrane  => 0.001
+				  },
+
+	        CytoplasmicMembrane => 	{
+				CytoplasmicMembrane 	=> 0.956
+				  },
+
+	       Cellwall => {
+				   CytoplasmicMembrane   => 0.012
+			   	}	
+	      },
+
+
+
+'CWSVM+' => {
+		Cytoplasmic   => {
+				   Cellwall   => 0.001
+				},
+	    
+	       Extracellular => {
+				    Cellwall  => 0.063
+				  },
+
+	        CytoplasmicMembrane => 	{
+				   Cellwall  => 0.011
+				  },	       	
+
+		Cellwall => {
+				Cellwall 	=> 0.927
+			   	}	
+
+		
+	      },
+
+
+
+  
+  'ModHMM+' => {
+	       Cytoplasmic   => {
+				CytoplasmicMembrane 	=> 0.001
+				  },
+	     
+	       Extracellular => {
+				   CytoplasmicMembrane => 0.032
+				  },
+
+	       CytoplasmicMembrane =>   {
+				CytoplasmicMembrane 	=> 0.937
+				  },
+		Cellwall => {
+				   CytoplasmicMembrane => 0.032
+	      			}
+	}
+}
+;

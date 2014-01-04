@@ -1,0 +1,122 @@
+PSORTb version 3.0.3 Installation Instructions
+------------------------------------------------------------------------------
+    * OVERVIEW
+    * PREREQUISITES
+    * INSTALLATION
+    * CONFIGURING STANDALONE PSORTb
+    * CONFIGURING A PSORTb SERVER
+------------------------------------------------------------------------------
+OVERVIEW
+
+PSORTb is described in: Gardy, J.L. et al (2003). PSORTb: improving 
+protein subcellular localization prediction for Gram-negative bacteria. 
+Nucleic Acids Research 31(13):3613-17. Please cite this publication if you 
+use PSORTb in your research.
+
+The standalone version of PSORTb is distributed under the GNU General 
+Public Licence (Gnu GPL). The program was initially been developed for the 
+Linux environment, but has since been ported to OS X (10.4 Darwin, NOT any
+newer versions) and Solaris SPARC and x86.
+
+This document describes the installation of the PSORTb version 3.0.x
+command line program.
+
+For further information, please contact psort-mail@sfu.ca.
+--------------------------------------------------------------------------------------------
+PREREQUISITES
+
+PSORTb has several prerequisites that must be installed for a fully 
+functional version.
+
+1. Either a Linux distribution, Mac OS X (10.4 Darwin ONLY), or Solaris
+PSORTb has been tested and found to work on the following Linux 
+distributions to date: RedHat, OpenSuSE, Ubuntu, Debian.
+However it should work on any modern Linux distribution.
+
+2. Perl version 5.005_03 or higher (5.6.x or higher recommended)
+The latest version of Perl can be obtained from http://www.cpan.org
+
+3. The Bioperl library version 1.5.x or higher
+While PSORTb *has* been tested on earlier versions of Bioperl, the latest 
+version is strongly recommended. Bioperl can be obtained from 
+http://www.bioperl.org
+
+4. libpsortb 1.0 or later.  The latest version is available from
+the PSORTb website at http://www.psort.org/psortb/downloads/
+
+5. A working installation of standalone NCBI BLAST
+BLAST can be obtained from the NCBI FTP site at 
+ftp://ftp.ncbi.nih.gov/blast/executables/
+(NOTE: PSORTb will NOT work with BLAST+)
+
+6. A working installation of PFTOOLS
+PFTOOLS can be obtained from 
+http://www.isrec.isb-sib.ch/ftp-server/pftools/pft2.3/
+
+if you can't find binaries for your platform you can download the source
+from the PSORTb website at http://www.psort.org/psortb/downloads/
+
+--------------------------------------------------------------------------------------------
+INSTALLATION
+
+Please ensure that you have installed all of the prerequisite packages 
+before performing this step.
+
+Unzip the Bio-Tools-PSort archive. Next, in the directory created when you 
+unzipped the Bio-Tools-PSort archive, run the following commands (Note 
+that you will most likely have to have administrative privileges to run 
+these commands successfully):
+
+perl Makefile.PL
+make
+make test (optional, but recommended)
+make install
+
+This should install and test all of the modules distributed with the 
+package. If this step is successful, please proceed to the next step - 
+configuring standalone PSORTb.
+
+--------------------------------------------------------------------------------------------
+CONFIGURING STANDALONE PSORTb
+
+Bio::Tools::PSort stores per-module configurations and other necessary 
+files under the 'psort' directory. These files are not installed in the 
+previous step, and it is recommended that you copy this directory to a 
+more permanent location like /usr/local/psortb/ using a command like cp -r 
+psort /usr/local/psortb
+
+This command will create a new directory called /usr/local/psortb/. Note 
+that you will have to have the appropriate permissions to execute this 
+command.
+
+Under this configuration the psort executable will be available at /usr/local/psortb/bin/psort
+
+--------------------------------------------------------------------------------------------
+
+TROUBLESHOOTING
+
+Q: The configuration tool can't find BLAST
+
+A: If you don't have blastall available in your default search path you must tell PSortb where to find the executable.  For example if you keep blastall in /opt/blast/bin/blastall you would tell the configuration tool it's in /opt/blast/bin/
+
+Q: The configuration tool can't find pfscan
+
+A: pfscan is part of the pftools package.  You must either download a binary package for your system from the PFtools website (recommended) or build it from source (requires Fortran compiler).  Once installed, if pfscan isn't in your default search path you must tell PSortb where to find the executable.  For example if you keep blastall in /opt/pftools/pfscan you would tell the configuration tool it's in /opt/pftools/
+
+Q: PSortb complains about an unresolved symbol in ModHMM
+
+A: This typically means the libraries in libpsortb aren't properly install.  Please ensure you've remembered to run ldconfig and that the path where the lib*.so files is in your /etc/ld.so.conf file (or equivilant)
+
+Q: I receive an error that PSortb isn't able to find formatdb
+
+A: formatdb is part of the BLAST package and can typically be found in the same directory as blastall.  Please ensure formatdb is in the same directory as blastall.
+
+Q: I receive an error that the Baysian model file is not found
+
+A: Did you remember to copy the psort directory to the one specified during configuration?  For example, cp -a psort /usr/local/psortb ?
+
+--------------------------------------------------------------------------------------------
+
+GETTING HELP
+
+If you continue to have trouble installing PSortb, please email us at psort-mail@sfu.ca

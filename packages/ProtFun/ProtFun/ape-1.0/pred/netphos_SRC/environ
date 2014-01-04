@@ -1,0 +1,15 @@
+
+# NetPhosK 1.0, SRC prediction
+APE_PRED	NetPhosK 1.0, SRC prediction
+APE_ID		SRC
+
+# amino acid to predict
+APE_AA		Y
+
+# flank to display
+APE_FLANK	4
+
+# NN simulator
+APE_NN		nnhowplayer6
+
+# end of file =================================================================
