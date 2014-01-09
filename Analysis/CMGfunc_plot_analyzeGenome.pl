@@ -33,7 +33,7 @@ printf $'hello\tworld\thugo\nfoo\tbar\nbaz\n' | awk -F$'\t' '{print NF-1;}'
 
 #.............. Get options ..............
 #my ($res, $clancut, $gocut, $h);
-my ($freqtablefiles, $h) = (undef,undef);
+my ($freqtablefiles, $h, $dirname) = (undef,undef,undef);
 my ($freqcut,$percut,$width,$sdcut) = (10,0.5,20,1);
 my $CMGfunc_path	= "/home/cmgfunc/CMGfunc/indirect";
 
@@ -69,7 +69,11 @@ unless ($freqtablefiles)	{
 	&usage;	exit; }
 
 my @freqtablefiles = glob("$freqtablefiles");
-my $dirname = "multigenome_".scalar(@freqtablefiles).".PLOTS";
+#print scalar(@freqtablefiles),"\n";
+
+if 	(scalar(@freqtablefiles) > 1) { $dirname = "multigenome_".scalar(@freqtablefiles).".PLOTS" }
+elsif	(scalar(@freqtablefiles) == 1){ $dirname = $freqtablefiles[0].".PLOTS" }
+
 print "#==================================================================================\n";
 printf ("%-40s:\t%-50s\n", "# RUNNING", "Input is a set of genomes, plots will be saved in $dirname") if scalar(@freqtablefiles) > 1;	
 printf ("%-40s:\t%-50s\n", "# RUNNING", "Input is one genome, plots will be saved in ". $freqtablefiles[0]. ".PLOTS") if scalar(@freqtablefiles) == 1;	
@@ -109,7 +113,6 @@ elsif(scalar(@freqtablefiles) == 1) {
 `Rscript $CMGfunc_path/CMGfunc_plot_heatmaps.R _tmpfunc $freqcut $percut $width $sdcut > /dev/null 2>&1`;
 
 if (scalar(@freqtablefiles) > 1) {
-	my $dirname = "multigenome_".scalar(@freqtablefiles).".PLOTS";
 	my $file = "multigenome_".scalar(@freqtablefiles);
 	`mkdir $dirname` unless (-d $dirname);
 	printf ("%-40s:\t%-50s\n", "# INFO"  , "Saving plots to $dirname");	
@@ -127,7 +130,7 @@ if (scalar(@freqtablefiles) > 1) {
 }
 elsif(scalar(@freqtablefiles) == 1) {
 	my $file = $freqtablefiles[0];
-	`mkdir $file.PLOTS` unless (-d $file.".PLOTS");
+	`mkdir $dirname` unless (-d $dirname);
 	printf ("%-40s:\t%-50s\n", "# INFO"  , "Saving plots to $file.PLOTS");	
 	`mv plot_freqsingle_bp.pdf $dirname/$file.freqsingle_bp.pdf`;
 	`mv plot_freqsingle_cc.pdf $dirname/$file.freqsingle_cc.pdf`;
