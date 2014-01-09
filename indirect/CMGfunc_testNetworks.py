@@ -20,6 +20,8 @@ import numpy
 import argparse 
 import logging 
 import sys
+import re
+import subprocess
 
 '''-----------------------------------------------------------------
 #############################################################################
@@ -96,8 +98,14 @@ outall_file_name = args.i + ".res.all"
 
 # If file already found, exit and ask to delete
 if os.path.isfile(out_file_name):
-    print "# ERROR: resultfile already exists, delete and re-run: ", out_file_name
-    sys.exit()
+    print "# WARNING CMGfunc_testNetworks.pl: resultfile already exists: ", out_file_name
+    print "# WARNING CMGfunc_testNetworks.pl: will not re-calculate for sequences already in file, delete and re-run if desired"
+    out_file = open(out_file_name, "a")
+    outall_file = open(outall_file_name, "a")
+
+else :
+    out_file = open(out_file_name, "w")
+    outall_file = open(outall_file_name, "w")
 
 # Test that netpath exists
 if not os.path.isdir(args.n):
@@ -115,16 +123,25 @@ line = testvector.readline()
 seqfeats = []
 i = 1
 
-out_file = open(out_file_name, "w")
-outall_file = open(outall_file_name, "w")
+
 
 print >> out_file, "# Comparison started for file: ",args.i
+
 
 while line:
     elements = line.split()
     seqname = elements[0]
+
+    if os.path.isfile(out_file_name):
+        out_file_read=open(out_file_name).read()
+        if seqname in out_file_read:
+           # print "Sequence already compared, %s, continue to next"%seqname
+            line = testvector.readline()
+            i=i+1
+            continue
+
     seqfeats = map(float,elements[3:])
-   # print seqfeats
+
     max_score=0
     max_net = "none"
     for netfile in netfiles:
@@ -148,7 +165,6 @@ while line:
     if (i % 100 == 0):
         print "# Running sequence number: ", i
 
-
     i=i+1
     line = testvector.readline()   
 
@@ -156,4 +172,5 @@ print >> out_file, "# Comparison ended for file: ",args.i
 out_file.flush()
 
 out_file.close()
+outall_file.close()
 

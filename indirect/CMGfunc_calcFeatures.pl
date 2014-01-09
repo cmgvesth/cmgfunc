@@ -75,13 +75,16 @@ my $i_counter = 0;
 &GetOptions ("fasta:s" =>  \$fasta);
 
 unless (defined $fasta) { 
+	print "#==================================================================================\n";
 	printf ("%-40s\t==>\t%-50s\n", "# ERROR", "Protein FASTA file not defined, example: -fasta genomeA.proteins.fsa"); 
 	&usage;
 }
 
 sub usage {
+	print "#==================================================================================\n";
 	printf ("%-40s\t==>\t%-50s\n", "# USAGE", "perl CMGfunc_calcFeatures.pl -fasta <name of FASTA file>");	
 	printf ("%-40s\t==>\t%-50s\n", "# EXAMPLE", "perl CMGfunc_calcFeatures.pl -fasta genomeA.proteins.fsa");
+	print "#==================================================================================\n";
 	exit( 1 );
 }
 
@@ -165,7 +168,6 @@ sub calcSequences{
 				$protein_id = shift(@calc_queue);
 				$length = shift(@calc_queue);
 				$seq = shift(@calc_queue);
-				$seq =~ s/[ZXB\*]//g;
 			}
 			# Tell the loader there is space again
 			$calc_queue_free->up();
@@ -174,6 +176,8 @@ sub calcSequences{
 			seek(TEMPFILE,0,0);
 			truncate(TEMPFILE,0);
 			$protein_id =~ s/\_/ /g; # Some programs crash if the name is to long!
+			$seq =~ s/[ZXB\*]//g;
+			$seq =~ s/U/C/g;
 			print TEMPFILE ">protein_id:$protein_id\n$seq\n";
 
         		$i_counter++;
@@ -332,7 +336,7 @@ sub psort {
 	#.............. Psort - Gram negatives ..............
 	#.............. Run program and error handling ..............
 
-	my @psort_n = `perl $ProtFun_path/ProtFun/bio-tools-psort-all/psort/bin/psort -n -o long $tempname `;	
+	my @psort_n = `perl $ProtFun_path/ProtFun/bio-tools-psort-all/psort/bin/psort -n -o long $tempname > /dev/null 2>&1`;	
 	if ($? == 0) {
 		# Basic processing
 		my @psort_n_fields = split("\t",$psort_n[0]);		
@@ -357,7 +361,7 @@ sub psort {
 	#..............Psort - Gram positives ..............
 	#.............. Run program and error handling ..............
 
-	my @psort_p = `perl $ProtFun_path/ProtFun/bio-tools-psort-all/psort/bin/psort -p -o long $tempname `;
+	my @psort_p = `perl $ProtFun_path/ProtFun/bio-tools-psort-all/psort/bin/psort -p -o long $tempname > /dev/null 2>&1`;
 	if ($? == 0) {
 		#.............. Basic processing ..............
 		my @psort_p_fields = split("\t",$psort_p[0]);		

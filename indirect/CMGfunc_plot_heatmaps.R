@@ -11,7 +11,59 @@ library(gplots)
 library(grid)     ## Need to attach (and not just load) grid package
 library(RColorBrewer)
 
-#------------------------------------------------- FUNTION END
+#-------FUNCTION: annotate ---------
+annotate <- function(freq) {
+	annotationInfo <- colnames(freq)
+	annotationInfo <- as.data.frame(annotationInfo)
+	rownames(annotationInfo) <- colnames(freq)
+	annotationInfo$annotationInfo <- factor(annotationInfo$annotationInfo, levels=unique(colnames(freq)))
+
+	generateColours <- brewer.pal(n = 7, name = "RdYlBu")
+
+	annotationColours <- generateColours[1:length(unique(colnames(freq)))]
+	names(annotationColours) <- unique(colnames(freq))
+	annotationColours <- list(annotationInfo=annotationColours)
+	output <- list(info = annotationInfo, colors = annotationColours) 
+	return (output)
+}
+
+#-------FUNCTION: reformatFreq ---------
+reformatFreq <- function(freq_Long, column) {
+	freq <- reshape(freq_Long, idvar=column,timevar='V1',v.names='V6', direction="wide")
+	rownames(freq) <- freq[,1]
+	freq <- as.matrix(freq)
+	freq <- freq[,-1, drop=FALSE]
+	mode(freq) <- 'numeric'
+	freq[is.na(freq)] <- 0
+	#sd <- apply(freq,1,sd)
+	#freq <- freq[which(sd>=0.1),]
+	return (freq)
+}
+
+#-------FUNCTION: reformatPer ---------
+reformatPer <- function(per_Long, column) {
+	per <- reshape(per_Long, idvar=column,timevar='V1',v.names='V7', direction="wide")
+	rownames(per) <- per[,1]
+	per <- as.matrix(per)
+	per <- per[,-1, drop=FALSE]
+	mode(per) <- 'numeric'
+	per[is.na(per)] <- 0
+	#sd <- apply(per,1,sd)
+	#per <- per[which(sd>=0.1),]
+	return (per)
+}
+#-------FUNCTION: reformatGO ---------
+reformatGO <- function(go_Long) {
+	go <- reshape(go_Long, idvar='V3',timevar='V1',v.names='V6', direction="wide")
+	rownames(go) <- go[,1]
+	go <- as.matrix(go)
+	go <- go[,-1, drop=FALSE]
+	mode(go) <- 'numeric'
+	go[is.na(go)] <- 0
+	#go <- apply(freq,1,sd)
+	#go <- go[which(sd>=0.1),]
+	return (go)
+}
 
 #############################################################################################
 # START MAIN
@@ -21,125 +73,120 @@ library(RColorBrewer)
 df <- read.table(args[1] , sep="\t")
 freqcut <- as.numeric(args[2]) 
 percut <- as.numeric(args[3]) 
-widthsingle <- as.numeric(args[4]) 
-widthmulti <- as.numeric(args[5]) 
-
-#df <- read.table("CMGfunc/_tmpfunc" , sep="\t") # args[1]
-#freqcut <- as.numeric(10) # args[2]
+width_user <- as.numeric(args[4]) 
+sdcut <- as.numeric(args[5]) 
 
 df$V6 <- as.integer(df$V6)
 df$V7 <- as.numeric(as.character(df$V7))
 
 # Frequencies
-freq_high <- subset(df, df$V6 >= freqcut & !grepl("GO", df$V2), select=c(V1,V6,V8))
-freq_low <- subset(df, df$V6 < freqcut & !grepl("GO", df$V2), select=c(V1,V6,V8))
-
-freq_high_Long <- freq_high[,1:3]
-freq_low_Long <- freq_low[,1:3]
+freq_mf <- subset(df, df$V6 >= freqcut & !grepl("GO", df$V2) & grepl("MF", df$V8), select=c(V1,V6,V8))
+freq_cc <- subset(df, df$V6 >= freqcut & !grepl("GO", df$V2) & grepl("CC", df$V9), select=c(V1,V6,V9))
+freq_bp <- subset(df, df$V6 >= freqcut & !grepl("GO", df$V2) & grepl("BP", df$V10), select=c(V1,V6,V10))
+freq_mf_Long <- freq_mf[,1:3]
+freq_bp_Long <- freq_bp[,1:3]
+freq_cc_Long <- freq_cc[,1:3]
 
 # Percentages
-per_high <- subset(df, df$V7 >= percut & !grepl("GO", df$V2), select=c(V1,V7,V8))
-per_low  <- subset(df, df$V7 < percut & !grepl("GO", df$V2), select=c(V1,V7,V8))
+per_mf <- subset(df, df$V7 >= percut & !grepl("GO", df$V2) & grepl("MF", df$V8), select=c(V1,V7,V8))
+per_cc <- subset(df, df$V7 >= percut & !grepl("GO", df$V2) & grepl("CC", df$V9), select=c(V1,V7,V9))
+per_bp <- subset(df, df$V7 >= percut & !grepl("GO", df$V2) & grepl("BP", df$V10), select=c(V1,V7,V10))
 
-per_high_Long <- per_high[,c(1:3)]
-per_low_Long  <- per_low[,c(1:3)]
+per_mf_Long <- per_mf[,c(1:3)]
+per_bp_Long <- per_bp[,c(1:3)]
+per_cc_Long <- per_cc[,c(1:3)]
 
-# GO term frequencies
-go_mf <- subset(df, df$V6 >= freqcut & grepl("GO", df$V2) & df$V3!="NA" & df$V8=="molecular_function", select=c(V1,V6,V3))
-go_cc <- subset(df, df$V6 >= freqcut & grepl("GO", df$V2) & df$V3!="NA" & df$V8=="cellular_component", select=c(V1,V6,V3))
-go_bp <- subset(df, df$V6 >= freqcut & grepl("GO", df$V2) & df$V3!="NA" & df$V8=="biological_process", select=c(V1,V6,V3))
+lapply((paste(c("Nr. of Molecular Function functions with freq > cutoff ", length(unique( freq_mf_Long$V8))), collapse="::")), write, "_stats", append=F)
+lapply((paste(c("Nr. of Cellular Component functions with freq > cutoff ", length(unique( freq_cc_Long$V9))), collapse="::")), write, "_stats", append=T)
+lapply((paste(c("Nr. of Biological Process functions with freq > cutoff ", length(unique( freq_bp_Long$V10))), collapse="::")), write, "_stats", append=T)
 
-gomf_Long <- go_mf[,c(1:3)]
-gocc_Long <- go_cc[,c(1:3)]
-gobp_Long <- go_bp[,c(1:3)]
+lapply((paste(c("Nr. of Molecular Function functions with percentage > cutoff ", length(unique( per_mf_Long$V8))), collapse="::")), write, "_stats", append=T)
+lapply((paste(c("Nr. of Cellular Component functions with percentage > cutoff ", length(unique( per_cc_Long$V9))), collapse="::")), write, "_stats", append=T)
+lapply((paste(c("Nr. of Biological Process functions with percentage > cutoff ", length(unique( per_bp_Long$V10))), collapse="::")), write, "_stats", append=T)
 
 #############################################################################################
 # SINGLE GENOME
 #############################################################################################
-if (length(levels(freq_high_Long$V1)) == 1 & length(levels(freq_low_Long$V1)) == 1) {
+if (length(levels(freq_cc_Long$V1)) == 1 & length(levels(freq_bp_Long$V1)) == 1 & length(levels(freq_cc_Long$V1)) == 1) {
 	
 	#############################################################################################
-	# High freq - SINGLE GENOME
+	# MF freq - SINGLE GENOME
 	#############################################################################################
-	if (dim(freq_high_Long)[1] > 1 ) {
+	if (dim(freq_mf_Long)[1] > 1 ) {
 	
-		freq <- reshape(freq_high_Long, idvar='V8',timevar='V1',v.names='V6', direction="wide")
-		rownames(freq) <- freq[,1]
-		freq <- as.matrix(freq)
-		freq <- freq[,-1, drop=FALSE]
-		mode(freq) <- 'numeric'
-		freq[is.na(freq)] <- 0
-
-		# Create annotations
-		annotationInfo <- colnames(freq)
-		annotationInfo <- as.data.frame(annotationInfo)
-		rownames(annotationInfo) <- colnames(freq)
-		annotationInfo$annotationInfo <- factor(annotationInfo$annotationInfo, levels=unique(colnames(freq)))
+		# Reformat
+		freq <- reformatFreq(freq_mf_Long, "V8")
 		
-		generateColours <- brewer.pal(n = 7, name = "RdYlBu")
-
-		annotationColours <- generateColours[1:length(unique(colnames(freq)))]
-		names(annotationColours) <- unique(colnames(freq))
-		annotationColours <- list(annotationInfo=annotationColours)
+		# Create annotations
+		annotationInfo <- annotate(freq)[[1]]
+		annotationColours <- annotate(freq)[[2]]
 
 		# Set color range
-		if (dim(freq_low_Long)[1] > 1) { from <- max(freq_low_Long$V6) 
-		} else from <-  min(freq_high_Long$V6) 
-		color_range <- length(seq(from, max(freq_high_Long$V6), 5))
-
+		color_range <- length(seq(min(freq_mf_Long$V6), max(freq_mf_Long$V6), 5))
 
 		# If all frequencies are the same, it is not possible to create a heatmap
-		if (max(freq_high_Long$V6) == min(freq_high_Long$V6)) {
-			string <- paste("plot_freqsingle_high.pdf")
-			pdf(string, paper="a4r",width = 0, height = 0)
-			barplot(freq, col=c("#00ffa5"), main="High frequency clans, one genome", ylab="Frequency")
+		if (max(freq_mf_Long$V6) == min(freq_mf_Long$V6)) {
+			pdf("plot_freqsingle_mf.pdf", paper="a4r",width = 0, height = 0)
+			barplot(freq, col=c("#00ffa5"), main="Frequency of functions with MF GO, one genome", ylab="Frequency")
 		} else {
 			# Plot heatmap with clustering on column
-			pheatmap(freq, cluster_rows=T, cluster_cols=F, main = "High frequency functions, one genome",fontsize_row=5,fontsize=8,
-			border_color="white",color = colorRampPalette(c("#ffa500","#00ffa5"))(color_range), 
-			cellheight=5,filename ="plot_freqsingle_high.pdf",width=widthsingle,treeheight_row= 150,
+			pheatmap(freq, cluster_rows=T, cluster_cols=F, main = "Frequency of functions with MF GO, one genome",fontsize_row=5,fontsize=8,
+			border_color="white",color = colorRampPalette(c("white", "#ffa500","#00ffa5"))(color_range), 
+			cellheight=5, cellwidth=15, filename ="plot_freqsingle_mf.pdf",width=width_user,treeheight_row= 150,
 			annotation=annotationInfo, annotation_colours=annotationColours,show_colnames=F,show_rownames=T)
 		}
 	} 
 	#############################################################################################
-	# Low freq - SINGLE GENOME
+	# BP freq - SINGLE GENOME
 	#############################################################################################
-	if (dim(freq_low_Long)[1] > 1) {
+	if (dim(freq_bp_Long)[1] > 1) {
 
-		freq <- reshape(freq_low_Long, idvar='V8',timevar='V1',v.names='V6', direction="wide")
-		rownames(freq) <- freq[,1]
-		freq <- as.matrix(freq)
-		freq <- freq[,-1, drop=FALSE]
-		mode(freq) <- 'numeric'
-		freq[is.na(freq)] <- 0
+		# Reformat
+		freq <- reformatFreq(freq_bp_Long, "V10")
 
 		# Create annotations
-		annotationInfo <- colnames(freq)
-		annotationInfo <- as.data.frame(annotationInfo)
-		rownames(annotationInfo) <- colnames(freq)
-		annotationInfo$annotationInfo <- factor(annotationInfo$annotationInfo, levels=unique(colnames(freq)))
-		
-		generateColours <- brewer.pal(n = 7, name = "RdYlBu")
-
-		annotationColours <- generateColours[1:length(unique(colnames(freq)))]
-		names(annotationColours) <- unique(colnames(freq))
-		annotationColours <- list(annotationInfo=annotationColours)
+		annotationInfo <- annotate(freq)[[1]]
+		annotationColours <- annotate(freq)[[2]]
 
 		# Set color range
-		if (dim(freq_high_Long)[1] > 1) { to <- min(freq_high_Long$V6) 
-		} else to <-  max(freq_low_Long$V6) 
-		color_range <- length(seq(min(freq_low_Long$V6), to, 1))
+		color_range <- length(seq(min(freq_bp_Long$V6), max(freq_bp_Long$V6), 5))
 
 		# If all frequencies are the same, it is not possible to create a heatmap
-		if (max(freq_low_Long$V6) == min(freq_low_Long$V6)) {
-			string <- paste("plot_freqsingle_low.pdf")
-			pdf(string, paper="a4r",width = 0, height = 0)
-			barplot(freq, col=c("#ffa500"), main="Low frequency clans, one genome", ylab="Frequency")
+		if (max(freq_bp_Long$V6) == min(freq_bp_Long$V6)) {
+			pdf("plot_freqsingle_bp.pdf", paper="a4r",width = 0, height = 0)
+			barplot(freq, col=c("#ffa500"), main="Frequency of functions with BP GO, one genome", ylab="Frequency")
 		} else {
 			# Plot heatmap with clustering on column
-			pheatmap(freq, cluster_rows=T, cluster_cols=F, main = "Low frequency functions, one genome",fontsize_row=5,fontsize=8,
-			border_color="white",color = colorRampPalette(c("white","#ffa500"))(color_range), 
-			cellheight=5,filename="plot_freqsingle_low.pdf",width=widthsingle,treeheight_row= 150,
+			pheatmap(freq, cluster_rows=T, cluster_cols=F, main = "Frequency of functions with BP GO, one genome",fontsize_row=5,fontsize=8,
+			border_color="white",color = colorRampPalette(c("white", "#ffa500","#005aff"))(color_range), 
+			cellheight=5, cellwidth=15, filename="plot_freqsingle_bp.pdf",width=width_user,treeheight_row= 150,
+			annotation=annotationInfo, annotation_colours=annotationColours,show_colnames=F,show_rownames=T)
+		}
+	}
+	#############################################################################################
+	# CC freq - SINGLE GENOME
+	#############################################################################################
+	if (dim(freq_cc_Long)[1] > 1) {
+
+		# Reformat
+		freq <- reformatFreq(freq_cc_Long, "V9")
+
+		# Create annotations
+		annotationInfo <- annotate(freq)[[1]]
+		annotationColours <- annotate(freq)[[2]]
+
+		# Set color range
+		color_range <- length(seq(min(freq_cc_Long$V6), max(freq_cc_Long$V6), 5))
+
+		# If all frequencies are the same, it is not possible to create a heatmap
+		if (max(freq_bp_Long$V6) == min(freq_bp_Long$V6)) {
+			pdf("plot_freqsingle_cc.pdf", paper="a4r",width = 0, height = 0)
+			barplot(freq, col=c("#ffa500"), main="Frequency of functions with CC GO, one genome", ylab="Frequency")
+		} else {
+			# Plot heatmap with clustering on column
+			pheatmap(freq, cluster_rows=T, cluster_cols=F, main = "Frequency of functions with CC GO, one genome",fontsize_row=5,fontsize=8,
+			border_color="white",color = colorRampPalette(c("white", "#ffa500","#a500ff"))(color_range), 
+			cellheight=5, cellwidth=15, filename="plot_freqsingle_cc.pdf",width=width_user,treeheight_row= 150,
 			annotation=annotationInfo, annotation_colours=annotationColours,show_colnames=F,show_rownames=T)
 		}
 	}
@@ -148,299 +195,184 @@ if (length(levels(freq_high_Long$V1)) == 1 & length(levels(freq_low_Long$V1)) ==
 #############################################################################################
 # Percentage - SINGLE GENOME
 #############################################################################################
-if (length(levels(per_high_Long$V1)) == 1 & length(levels(per_low_Long$V1)) == 1) {
+if (length(levels(per_mf_Long$V1)) == 1 & length(levels(per_bp_Long$V1)) == 1  & length(levels(per_cc_Long$V1)) == 1) {
 	#############################################################################################
-	# High percentage - SINGLE GENOME
+	# MF percentage - SINGLE GENOME
 	#############################################################################################
-	if (dim(per_high_Long)[1] > 1 ) {
+	if (dim(per_mf_Long)[1] > 1 ) {
 	
-		per <- reshape(per_high_Long, idvar='V8',timevar='V1',v.names='V7', direction="wide")
-		rownames(per) <- per[,1]
-		per <- as.matrix(per)
-		per <- per[,-1, drop=FALSE]
-		mode(per) <- 'numeric'
-		per[is.na(per)] <- 0
+		# Reformat
+		per <- reformatPer(per_mf_Long, "V8")
 
 		# Create annotations
-		annotationInfo <- colnames(per)
-		annotationInfo <- as.data.frame(annotationInfo)
-		rownames(annotationInfo) <- colnames(per)
-		annotationInfo$annotationInfo <- factor(annotationInfo$annotationInfo, levels=unique(colnames(per)))
-		
-		generateColours <- brewer.pal(n = 7, name = "RdYlBu")
-
-		annotationColours <- generateColours[1:length(unique(colnames(per)))]
-		names(annotationColours) <- unique(colnames(per))
-		annotationColours <- list(annotationInfo=annotationColours)
+		annotationInfo <- annotate(per)[[1]]
+		annotationColours <- annotate(per)[[2]]
 
 		# Set color range
-		if (dim(per_low_Long)[1] > 1) { from <- max(per_low_Long$V7) 
-		} else from <-  min(per_high_Long$V7) 
-		color_range <- length(seq(from, max(per_high_Long$V7), 0.5))
+		color_range <- length(seq(min(per_mf_Long$V7), max(per_mf_Long$V7), 0.1))
 
 		# If all peruencies are the same, it is not possible to create a heatmap
-		if (max(per_high_Long$V7) == min(per_high_Long$V7)) {
-			string <- paste("plot_persingle_high.pdf")
-			pdf(string, paper="a4r",width = 0, height = 0)
-			barplot(per, col=c("#00ffa5"), main="High peruency clans, one genome", ylab="peruency")
+		if (max(per_mf_Long$V7) == min(per_mf_Long$V7)) {
+			pdf("plot_persingle_mf.pdf", paper="a4r",width = 0, height = 0)
+			barplot(per, col=c("#00ffa5"), main="Percentages of functions with MF GO, one genome", ylab="peruency")
 		} else {
 			# Plot heatmap with clustering on column
-			pheatmap(per, cluster_rows=T, cluster_cols=F, main = "High percentage functions, one genome",fontsize_row=5,fontsize=8,
-			border_color="white",color = colorRampPalette(c("#ae002b","#00ffa5"))(color_range), 
-			cellheight=5,filename ="plot_persingle_high.pdf",width=widthsingle,treeheight_row= 150,
+			pheatmap(per, cluster_rows=T, cluster_cols=F, main = "Percentages of functions with MF GO, one genome",fontsize_row=5,fontsize=8,
+			border_color="white",color = colorRampPalette(c("white", "#ff005a","#00ffa5"))(color_range), 
+			cellheight=5, cellwidth=15, filename ="plot_persingle_mf.pdf",width=width_user,treeheight_row= 150,
 			annotation=annotationInfo, annotation_colours=annotationColours,show_colnames=F,show_rownames=T)
 		}
 	} 
 	#############################################################################################
-	# Low percentage - SINGLE GENOME
+	# BP percentage - SINGLE GENOME
 	#############################################################################################
-	if (dim(per_low_Long)[1] > 1) {
+	if (dim(per_bp_Long)[1] > 1) {
 
-		per <- reshape(per_low_Long, idvar='V8',timevar='V1',v.names='V7', direction="wide")
-		rownames(per) <- per[,1]
-		per <- as.matrix(per)
-		per <- per[,-1, drop=FALSE]
-		mode(per) <- 'numeric'
-		per[is.na(per)] <- 0
+		# Reformat
+		per <- reformatPer(per_bp_Long, "V10")
 
 		# Create annotations
-		annotationInfo <- colnames(per)
-		annotationInfo <- as.data.frame(annotationInfo)
-		rownames(annotationInfo) <- colnames(per)
-		annotationInfo$annotationInfo <- factor(annotationInfo$annotationInfo, levels=unique(colnames(per)))
-		
-		generateColours <- brewer.pal(n = 7, name = "RdYlBu")
-
-		annotationColours <- generateColours[1:length(unique(colnames(per)))]
-		names(annotationColours) <- unique(colnames(per))
-		annotationColours <- list(annotationInfo=annotationColours)
+		annotationInfo <- annotate(per)[[1]]
+		annotationColours <- annotate(per)[[2]]
 
 		# Set color range
-		if (dim(per_high_Long)[1] > 1) { to <- min(per_high_Long$V7) 
-		} else to <-  max(per_low_Long$V7) 
-		color_range <- length(seq(min(per_low_Long$V7), to, 0.01))
+		color_range <- length(seq(min(per_bp_Long$V7), max(per_bp_Long$V7), 0.1))
 
 		# If all percentage are the same, it is not possible to create a heatmap
-		if (max(per_low_Long$V7) == min(per_low_Long$V7)) {
-			pdf("plot_persingle_low.pdf", paper="a4r",width = 0, height = 0)
-			barplot(per, col=c("#ae002b"), main="Low percentage clans, one genome", ylab="percentage")
+		if (max(per_bp_Long$V7) == min(per_bp_Long$V7)) {
+			pdf("plot_persingle_bp.pdf", paper="a4r",width = 0, height = 0)
+			barplot(per, col=c("#ae002b"), main="Percentages of functions with BP GO, one genome", ylab="percentage")
 		} else {
 			# Plot heatmap with clustering on column
-			pheatmap(per, cluster_rows=T, cluster_cols=F, main = "Low percentage functions, one genome",fontsize_row=5,fontsize=8,
-			border_color="white",color = colorRampPalette(c("white","#ae002b"))(color_range), 
-			cellheight=5,filename="plot_persingle_low.pdf",width=widthsingle,treeheight_row= 150,
+			pheatmap(per, cluster_rows=T, cluster_cols=F, main = "Percentages of functions with BP GO, one genome",fontsize_row=5,fontsize=8,
+			border_color="white",color = colorRampPalette(c("white", "#ff005a","#005aff"))(color_range), 
+			cellheight=5, cellwidth=15, filename="plot_persingle_bp.pdf",width=width_user,treeheight_row= 150,
+			annotation=annotationInfo, annotation_colours=annotationColours,show_colnames=F,show_rownames=T)
+		}
+	}
+	#############################################################################################
+	# CC percentage - SINGLE GENOME
+	#############################################################################################
+	if (dim(per_cc_Long)[1] > 1) {
+
+		# Reformat
+		per <- reformatPer(per_cc_Long, "V9")
+
+		# Create annotations
+		annotationInfo <- annotate(per)[[1]]
+		annotationColours <- annotate(per)[[2]]
+
+		# Set color range
+		color_range <- length(seq(min(per_cc_Long$V7), max(per_cc_Long$V7), 0.1))
+
+		# If all percentage are the same, it is not possible to create a heatmap
+		if (max(per_cc_Long$V7) == min(per_cc_Long$V7)) {
+			pdf("plot_persingle_cc.pdf", paper="a4r",width = 0, height = 0)
+			barplot(per, col=c("#ae002b"), main="Percentages of functions with CC GO, one genome", ylab="percentage")
+		} else {
+			# Plot heatmap with clustering on column
+			pheatmap(per, cluster_rows=T, cluster_cols=F, main = "Percentages of functions with CC GO, one genome",fontsize_row=5,fontsize=8,
+			border_color="white",color = colorRampPalette(c("white", "#ff005a","#a500ff"))(color_range), 
+			cellheight=5, cellwidth=15, filename="plot_persingle_cc.pdf",width=width_user,treeheight_row= 150,
 			annotation=annotationInfo, annotation_colours=annotationColours,show_colnames=F,show_rownames=T)
 		}
 	}
 }
-
-#############################################################################################
-# Go terms - single genome
-#############################################################################################
-if (length(levels(gomf_Long$V1)) == 1 & length(levels(gocc_Long$V1)) == 1 & length(levels(gobp_Long$V1)) == 1) {
-	
-	#############################################################################################
-	# Molecular function frequency GO- SINGLE GENOME
-	#############################################################################################
-	if (dim(gomf_Long)[1] > 1 ) {
-		gomf <- reshape(gomf_Long, idvar='V3',timevar='V1',v.names='V6', direction="wide")
-		rownames(gomf) <- gomf[,1]
-		gomf <- as.matrix(gomf)
-		gomf <- gomf[,-1, drop=FALSE]
-		mode(gomf) <- 'numeric'
-		gomf[is.na(gomf)] <- 0
-
-		# Create annotations
-		annotationInfo <- colnames(gomf)
-		annotationInfo <- as.data.frame(annotationInfo)
-		rownames(annotationInfo) <- colnames(gomf)
-		annotationInfo$annotationInfo <- factor(annotationInfo$annotationInfo, levels=unique(colnames(gomf)))
-		generateColours <- brewer.pal(n = 7, name = "RdYlBu")
-		annotationColours <- generateColours[1:length(unique(colnames(gomf)))]
-		names(annotationColours) <- unique(colnames(gomf))
-		annotationColours <- list(annotationInfo=annotationColours)
-
-		# Set color range
-		color_range <- length(seq(min(gomf_Long$V6), max(gomf_Long$V6), 1))
-
-		# If all gomfuencies are the same, it is not possible to create a heatmap
-		if (max(gomf_Long$V6) == min(gomf_Long$V6)) {
-			pdf("plot_gomfsingle_mf.pdf", paper="a4r",width = 0, height = 0)
-			barplot(gomf, col=c("#00a0ea"), main="Frequency of Molecular Function GO terms, one genome", ylab="frequency gomf")
-		} else {
-			# Plot heatmap with clustering on column
-			pheatmap(gomf, cluster_rows=T, cluster_cols=F, main = "Frequency of Molecular Function GO terms, one genome",fontsize_row=5,fontsize=8,
-			border_color="white",color = colorRampPalette(c("white","#ea002b", "#00a0ea"))(color_range), 
-			cellheight=5,filename ="plot_gomfsingle_mf.pdf",width=widthsingle,treeheight_row= 150,
-			annotation=annotationInfo, annotation_colours=annotationColours,show_colnames=F,show_rownames=T)
-		}
-
-	} 
-	#############################################################################################
-	# Cellular component frequency GO- SINGLE GENOME
-	#############################################################################################
-	if (dim(gocc_Long)[1] > 1) {
-
-		gocc <- reshape(gocc_Long, idvar='V3',timevar='V1',v.names='V6', direction="wide")
-		rownames(gocc) <- gocc[,1]
-		gocc <- as.matrix(gocc)
-		gocc <- gocc[,-1, drop=FALSE]
-		mode(gocc) <- 'numeric'
-		gocc[is.na(gocc)] <- 0
-
-		# Create annotations
-		annotationInfo <- colnames(gocc)
-		annotationInfo <- as.data.frame(annotationInfo)
-		rownames(annotationInfo) <- colnames(gocc)
-		annotationInfo$annotationInfo <- factor(annotationInfo$annotationInfo, levels=unique(colnames(gocc)))
-		generateColours <- brewer.pal(n = 7, name = "RdYlBu")
-		annotationColours <- generateColours[1:length(unique(colnames(gocc)))]
-		names(annotationColours) <- unique(colnames(gocc))
-		annotationColours <- list(annotationInfo=annotationColours)
-
-		# Set color range
-		color_range <- length(seq(min(gocc_Long$V6), max(gocc_Long$V6), 1))
-
-		# If all goccuencies are the same, it is not possible to create a heatmap
-		if (max(gocc_Long$V6) == min(gocc_Long$V6)) {
-			pdf("plot_goccsingle_cc.pdf", paper="a4r",width = 0, height = 0)
-			barplot(gocc, col=c("#00a0ea"), main="Frequency of Cellular Component GO terms, one genome", ylab="frequency gocc")
-		} else {
-			# Plot heatmap with clustering on column
-			pheatmap(gocc, cluster_rows=T, cluster_cols=F, main = "Frequency of Cellular Component GO terms, one genome",fontsize_row=5,fontsize=8,
-			border_color="white",color = colorRampPalette(c("white","#bf00ea", "#00a0ea"))(color_range), 
-			cellheight=5,filename="plot_goccsingle_cc.pdf",width=widthsingle,treeheight_row= 150,
-			annotation=annotationInfo, annotation_colours=annotationColours,show_colnames=F,show_rownames=T)
-		}
-	}
-	#############################################################################################
-	# Biological Process frequency GO- SINGLE GENOME
-	#############################################################################################
-	if (dim(gobp_Long)[1] > 1) {
-
-		gobp <- reshape(gobp_Long, idvar='V3',timevar='V1',v.names='V6', direction="wide")
-		rownames(gobp) <- gobp[,1]
-		gobp <- as.matrix(gobp)
-		gobp <- gobp[,-1, drop=FALSE]
-		mode(gobp) <- 'numeric'
-		gobp[is.na(gobp)] <- 0
-
-		# Create annotations
-		annotationInfo <- colnames(gobp)
-		annotationInfo <- as.data.frame(annotationInfo)
-		rownames(annotationInfo) <- colnames(gobp)
-		annotationInfo$annotationInfo <- factor(annotationInfo$annotationInfo, levels=unique(colnames(gobp)))
-		generateColours <- brewer.pal(n = 7, name = "RdYlBu")
-		annotationColours <- generateColours[1:length(unique(colnames(gobp)))]
-		names(annotationColours) <- unique(colnames(gobp))
-		annotationColours <- list(annotationInfo=annotationColours)
-
-		# Set color range
-		color_range <- length(seq(min(gobp_Long$V6), max(gobp_Long$V6), 1))
-
-		# If all frequencies are the same, it is not possible to create a heatmap
-		if (max(gobp_Long$V6) == min(gobp_Long$V6)) {
-			pdf("plot_gobpsingle_bp.pdf", paper="a4r",width = 0, height = 0)
-			barplot(gobp, col=c("#00a0ea"), main="Frequency of Biological Process GO terms, one genome", ylab="frequency gobp")
-		} else {
-			# Plot heatmap with clustering on column
-			pheatmap(gobp, cluster_rows=T, cluster_cols=F, main = "Frequency of Biological Process GO terms, one genome",fontsize_row=5,fontsize=8,
-			border_color="white",color = colorRampPalette(c("white","#ea4a00", "#00a0ea"))(color_range), 
-			cellheight=5,filename="plot_gobpsingle_bp.pdf",width=widthsingle,treeheight_row= 150,
-			annotation=annotationInfo, annotation_colours=annotationColours,show_colnames=F,show_rownames=T)
-		}
-	}
-}	
 
 
 
 #############################################################################################
 # MULTIPLE GENOMES
 #############################################################################################
-if (length(levels(freq_high_Long$V1)) > 1 & length(levels(freq_low_Long$V1)) > 1) {
+if (length(levels(freq_cc_Long$V1)) > 1 & length(levels(freq_bp_Long$V1)) > 1 & length(levels(freq_cc_Long$V1)) > 1) {
 	
 	#############################################################################################
-	# High freq - MULTIPLE GENOMES
+	# MF freq - MULTIPLE GENOMES
 	#############################################################################################
-	if (dim(freq_high_Long)[1] > 1 ) {
+	if (dim(freq_mf_Long)[1] > 1 ) {
 	
-		freq <- reshape(freq_high_Long, idvar='V8',timevar='V1',v.names='V6', direction="wide")
-		rownames(freq) <- freq[,1]
-		freq <- as.matrix(freq)
-		freq <- freq[,-1, drop=FALSE]
-		mode(freq) <- 'numeric'
-		freq[is.na(freq)] <- 0
+		# Reformat
+		freq <- reformatFreq(freq_mf_Long, "V8")
+		sd <- apply(freq,1,sd)
+		lapply((paste(c("Molecular Function functions with to low standard deviation, frequencies ", length(sd[sd<sdcut])), collapse="::")), write, "_stats", append=T)
+		freq <- freq[which(sd>=0.1),]
 
 		# Create annotations
-		annotationInfo <- colnames(freq)
-		annotationInfo <- as.data.frame(annotationInfo)
-		rownames(annotationInfo) <- colnames(freq)
-		annotationInfo$annotationInfo <- factor(annotationInfo$annotationInfo, levels=unique(colnames(freq)))
-		
-		generateColours <- brewer.pal(n = 7, name = "RdYlBu")
-
-		annotationColours <- generateColours[1:length(unique(colnames(freq)))]
-		names(annotationColours) <- unique(colnames(freq))
-		annotationColours <- list(annotationInfo=annotationColours)
+		annotationInfo <- annotate(freq)[[1]]
+		annotationColours <- annotate(freq)[[2]]
 
 		# Set color range
-		if (dim(freq_low_Long)[1] > 1) { from <- max(freq_low_Long$V6) 
-		} else from <-  min(freq_high_Long$V6) 
-		color_range <- length(seq(from, max(freq_high_Long$V6), 5))
-
+		color_range <- length(seq(min(freq_mf_Long$V6), max(freq_mf_Long$V6), 5))
 
 		# If all frequencies are the same, it is not possible to create a heatmap
-		if (max(freq_high_Long$V6) == min(freq_high_Long$V6)) {
-			string <- paste("plot_freqmulti_high.pdf")
-			pdf(string, paper="a4r",width = 0, height = 0)
-			barplot(freq, col=c("#00ffa5"), main="High frequency clans, multiple genomes", ylab="Frequency")
+		if (max(freq_mf_Long$V6) == min(freq_mf_Long$V6)) {
+			pdf("plot_freqmultiple_mf.pdf", paper="a4r",width = 0, height = 0)
+			barplot(freq, col=c("#00ffa5"), main="Frequency of functions with MF GO, multiple genomes", ylab="Frequency")
 		} else {
 			# Plot heatmap with clustering on column
-			pheatmap(freq, cluster_rows=T, cluster_cols=T, main = "High frequency functions, multiple genomes",fontsize_row=5,fontsize=8,
-			border_color="white",color = colorRampPalette(c("#ffa500","#00ffa5"))(color_range), 
-			cellheight=5,filename ="plot_freqmulti_high.pdf",width=widthsingle,treeheight_row= 150,
+			pheatmap(freq, cluster_rows=T, cluster_cols=T, main = "Frequency of functions with MF GO, multiple genomes",fontsize_row=5,fontsize=8,
+			border_color="white",color = colorRampPalette(c("white", "#ffa500","#00ffa5"))(color_range), 
+			cellheight=5, cellwidth=15, filename ="plot_freqmultiple_mf.pdf",width=width_user,treeheight_row= 150,
 			annotation=annotationInfo, annotation_colours=annotationColours,show_colnames=F,show_rownames=T)
 		}
 	} 
 	#############################################################################################
-	# Low freq - MULTIPLE GENOMES
+	# BP freq - MULTIPLE GENOMES
 	#############################################################################################
-	if (dim(freq_low_Long)[1] > 1) {
+	if (dim(freq_bp_Long)[1] > 1) {
 
-		freq <- reshape(freq_low_Long, idvar='V8',timevar='V1',v.names='V6', direction="wide")
-		rownames(freq) <- freq[,1]
-		freq <- as.matrix(freq)
-		freq <- freq[,-1, drop=FALSE]
-		mode(freq) <- 'numeric'
-		freq[is.na(freq)] <- 0
+		# Reformat
+		freq <- reformatFreq(freq_bp_Long, "V10")
+		sd <- apply(freq,1,sd)
+		lapply((paste(c("Biological Process functions with to low standard deviation, frequencies ", length(sd[sd<sdcut])), collapse="::")), write, "_stats", append=T)
+		freq <- freq[which(sd>=0.1),]
 
 		# Create annotations
-		annotationInfo <- colnames(freq)
-		annotationInfo <- as.data.frame(annotationInfo)
-		rownames(annotationInfo) <- colnames(freq)
-		annotationInfo$annotationInfo <- factor(annotationInfo$annotationInfo, levels=unique(colnames(freq)))
-		
-		generateColours <- brewer.pal(n = 7, name = "RdYlBu")
-
-		annotationColours <- generateColours[1:length(unique(colnames(freq)))]
-		names(annotationColours) <- unique(colnames(freq))
-		annotationColours <- list(annotationInfo=annotationColours)
+		annotationInfo <- annotate(freq)[[1]]
+		annotationColours <- annotate(freq)[[2]]
 
 		# Set color range
-		if (dim(freq_high_Long)[1] > 1) { to <- min(freq_high_Long$V6) 
-		} else to <-  max(freq_low_Long$V6) 
-		color_range <- length(seq(min(freq_low_Long$V6), to, 1))
+		color_range <- length(seq(min(freq_bp_Long$V6), max(freq_bp_Long$V6), 5))
 
 		# If all frequencies are the same, it is not possible to create a heatmap
-		if (max(freq_low_Long$V6) == min(freq_low_Long$V6)) {
-			string <- paste("plot_freqmulti_low.pdf")
-			pdf(string, paper="a4r",width = 0, height = 0)
-			barplot(freq, col=c("#ffa500"), main="Low frequency clans, multiple genomes", ylab="Frequency")
+		if (max(freq_bp_Long$V6) == min(freq_bp_Long$V6)) {
+			pdf("plot_freqmultiple_bp.pdf", paper="a4r",width = 0, height = 0)
+			barplot(freq, col=c("#ffa500"), main="Frequency of functions with BP GO, multiple genomes", ylab="Frequency")
 		} else {
 			# Plot heatmap with clustering on column
-			pheatmap(freq, cluster_rows=T, cluster_cols=T, main = "Low frequency functions, multiple genomes",fontsize_row=5,fontsize=8,
-			border_color="white",color = colorRampPalette(c("white","#ffa500"))(color_range), 
-			cellheight=5,filename="plot_freqmulti_low.pdf",width=widthsingle,treeheight_row= 150,
+			pheatmap(freq, cluster_rows=T, cluster_cols=T, main = "Frequency of functions with BP GO, multiple genomes",fontsize_row=5,fontsize=8,
+			border_color="white",color = colorRampPalette(c("white", "#ffa500","#005aff"))(color_range), 
+			cellheight=5, cellwidth=15, filename="plot_freqmultiple_bp.pdf",width=width_user,treeheight_row= 150,
+			annotation=annotationInfo, annotation_colours=annotationColours,show_colnames=F,show_rownames=T)
+		}
+	}
+	#############################################################################################
+	# CC freq - MULTIPLE GENOMES
+	#############################################################################################
+	if (dim(freq_cc_Long)[1] > 1) {
+
+		# Reformat
+		freq <- reformatFreq(freq_cc_Long, "V9")
+		sd <- apply(freq,1,sd)
+		lapply((paste(c("Cellular Component functions with to low standard deviation, frequencies ", length(sd[sd<sdcut])), collapse="::")), write, "_stats", append=T)
+		freq <- freq[which(sd>=0.1),]
+
+		# Create annotations
+		annotationInfo <- annotate(freq)[[1]]
+		annotationColours <- annotate(freq)[[2]]
+
+		# Set color range
+		color_range <- length(seq(min(freq_cc_Long$V6), max(freq_cc_Long$V6), 5))
+
+		# If all frequencies are the same, it is not possible to create a heatmap
+		if (max(freq_bp_Long$V6) == min(freq_bp_Long$V6)) {
+			pdf("plot_freqmultiple_cc.pdf", paper="a4r",width = 0, height = 0)
+			barplot(freq, col=c("#ffa500"), main="Frequency of functions with CC GO, multiple genomes", ylab="Frequency")
+		} else {
+			# Plot heatmap with clustering on column
+			pheatmap(freq, cluster_rows=T, cluster_cols=T, main = "Frequency of functions with CC GO, multiple genomes",fontsize_row=5,fontsize=8,
+			border_color="white",color = colorRampPalette(c("white", "#ffa500","#a500ff"))(color_range), 
+			cellheight=5, cellwidth=15, filename="plot_freqmultiple_cc.pdf",width=width_user,treeheight_row= 150,
 			annotation=annotationInfo, annotation_colours=annotationColours,show_colnames=F,show_rownames=T)
 		}
 	}
@@ -449,207 +381,101 @@ if (length(levels(freq_high_Long$V1)) > 1 & length(levels(freq_low_Long$V1)) > 1
 #############################################################################################
 # Percentage - MULTIPLE GENOMES
 #############################################################################################
-if (length(levels(per_high_Long$V1)) > 1 & length(levels(per_low_Long$V1)) > 1) {
-
+if (length(levels(per_mf_Long$V1)) > 1& length(levels(per_bp_Long$V1)) > 1 & length(levels(per_cc_Long$V1)) > 1) {
 	#############################################################################################
-	# High percentage - MULTIPLE GENOMES
+	# MF percentage - MULTIPLE GENOMES
 	#############################################################################################
-	if (dim(per_high_Long)[1] > 1 ) {
+	if (dim(per_mf_Long)[1] > 1 ) {
 	
-		per <- reshape(per_high_Long, idvar='V8',timevar='V1',v.names='V7', direction="wide")
-		rownames(per) <- per[,1]
-		per <- as.matrix(per)
-		per <- per[,-1, drop=FALSE]
-		mode(per) <- 'numeric'
-		per[is.na(per)] <- 0
+		# Reformat
+		per <- reformatPer(per_mf_Long, "V8")
+		sd <- apply(per,1,sd)
+		lapply((paste(c("Molecular Function functions with to low standard deviation, percentages ", length(sd[sd<sdcut])), collapse="::")), write, "_stats", append=T)
+		per <- per[which(sd>=0.1),]
 
 		# Create annotations
-		annotationInfo <- colnames(per)
-		annotationInfo <- as.data.frame(annotationInfo)
-		rownames(annotationInfo) <- colnames(per)
-		annotationInfo$annotationInfo <- factor(annotationInfo$annotationInfo, levels=unique(colnames(per)))
-		
-		generateColours <- brewer.pal(n = 7, name = "RdYlBu")
-
-		annotationColours <- generateColours[1:length(unique(colnames(per)))]
-		names(annotationColours) <- unique(colnames(per))
-		annotationColours <- list(annotationInfo=annotationColours)
+		annotationInfo <- annotate(per)[[1]]
+		annotationColours <- annotate(per)[[2]]
 
 		# Set color range
-		if (dim(per_low_Long)[1] > 1) { from <- max(per_low_Long$V7) 
-		} else from <-  min(per_high_Long$V7) 
-		color_range <- length(seq(from, max(per_high_Long$V7), 0.5))
+		color_range <- length(seq(min(per_mf_Long$V7), max(per_mf_Long$V7), 0.1))
 
 		# If all peruencies are the same, it is not possible to create a heatmap
-		if (max(per_high_Long$V7) == min(per_high_Long$V7)) {
-			string <- paste("plot_permulti_high.pdf")
-			pdf(string, paper="a4r",width = 0, height = 0)
-			barplot(per, col=c("#00ffa5"), main="High peruency clans, multiple genomes", ylab="peruency")
+		if (max(per_mf_Long$V7) == min(per_mf_Long$V7)) {
+			pdf("plot_permultiple_mf.pdf", paper="a4r",width = 0, height = 0)
+			barplot(per, col=c("#00ffa5"), main="Percentages of functions with MF GO, multiple genomes", ylab="peruency")
 		} else {
 			# Plot heatmap with clustering on column
-			pheatmap(per, cluster_rows=T, cluster_cols=T, main = "High percentage functions, multiple genomes",fontsize_row=5,fontsize=8,
-			border_color="white",color = colorRampPalette(c("#ae002b","#00ffa5"))(color_range), 
-			cellheight=5,filename ="plot_permulti_high.pdf",width=widthsingle,treeheight_row= 150,
+			pheatmap(per, cluster_rows=T, cluster_cols=T, main = "Percentages of functions with MF GO, multiple genomes",fontsize_row=5,fontsize=8,
+			border_color="white",color = colorRampPalette(c("white", "#ff005a","#00ffa5"))(color_range), 
+			cellheight=5, cellwidth=15, filename ="plot_permultiple_mf.pdf",width=width_user,treeheight_row= 150,
 			annotation=annotationInfo, annotation_colours=annotationColours,show_colnames=F,show_rownames=T)
 		}
 	} 
 	#############################################################################################
-	# Low percentage - MULTIPLE GENOMES
+	# BP percentage - MULTIPLE GENOMES
 	#############################################################################################
-	if (dim(per_low_Long)[1] > 1) {
+	if (dim(per_bp_Long)[1] > 1) {
 
-		per <- reshape(per_low_Long, idvar='V8',timevar='V1',v.names='V7', direction="wide")
-		rownames(per) <- per[,1]
-		per <- as.matrix(per)
-		per <- per[,-1, drop=FALSE]
-		mode(per) <- 'numeric'
-		per[is.na(per)] <- 0
+		# Reformat
+		per <- reformatPer(per_bp_Long, "V10")
+		sd <- apply(per,1,sd)
+		lapply((paste(c("Biological Process functions with to low standard deviation, percentages ", length(sd[sd<sdcut])), collapse="::")), write, "_stats", append=T)
+		per <- per[which(sd>=0.1),]
 
 		# Create annotations
-		annotationInfo <- colnames(per)
-		annotationInfo <- as.data.frame(annotationInfo)
-		rownames(annotationInfo) <- colnames(per)
-		annotationInfo$annotationInfo <- factor(annotationInfo$annotationInfo, levels=unique(colnames(per)))
-		
-		generateColours <- brewer.pal(n = 7, name = "RdYlBu")
-
-		annotationColours <- generateColours[1:length(unique(colnames(per)))]
-		names(annotationColours) <- unique(colnames(per))
-		annotationColours <- list(annotationInfo=annotationColours)
+		annotationInfo <- annotate(per)[[1]]
+		annotationColours <- annotate(per)[[2]]
 
 		# Set color range
-		if (dim(per_high_Long)[1] > 1) { to <- min(per_high_Long$V7) 
-		} else to <-  max(per_low_Long$V7) 
-		color_range <- length(seq(min(per_low_Long$V7), to, 0.01))
+		color_range <- length(seq(min(per_bp_Long$V7), max(per_bp_Long$V7), 0.1))
 
 		# If all percentage are the same, it is not possible to create a heatmap
-		if (max(per_low_Long$V7) == min(per_low_Long$V7)) {
-			pdf("plot_permulti_low.pdf", paper="a4r",width = 0, height = 0)
-			barplot(per, col=c("#ae002b"), main="Low percentage clans, multiple genomes", ylab="percentage")
+		if (max(per_bp_Long$V7) == min(per_bp_Long$V7)) {
+			pdf("plot_permultiple_bp.pdf", paper="a4r",width = 0, height = 0)
+			barplot(per, col=c("#ae002b"), main="Percentages of functions with BP GO, multiple genomes", ylab="percentage")
 		} else {
 			# Plot heatmap with clustering on column
-			pheatmap(per, cluster_rows=T, cluster_cols=T, main = "Low percentage functions, multiple genomes",fontsize_row=5,fontsize=8,
-			border_color="white",color = colorRampPalette(c("white","#ae002b"))(color_range), 
-			cellheight=5,filename="plot_permulti_low.pdf",width=widthsingle,treeheight_row= 150,
+			pheatmap(per, cluster_rows=T, cluster_cols=T, main = "Percentages of functions with BP GO, multiple genomes",fontsize_row=5,fontsize=8,
+			border_color="white",color = colorRampPalette(c("white", "#ff005a","#005aff"))(color_range), 
+			cellheight=5, cellwidth=15, filename="plot_permultiple_bp.pdf",width=width_user,treeheight_row= 150,
+			annotation=annotationInfo, annotation_colours=annotationColours,show_colnames=F,show_rownames=T)
+		}
+	}
+	#############################################################################################
+	# CC percentage - MULTIPLE GENOMES
+	#############################################################################################
+	if (dim(per_cc_Long)[1] > 1) {
+
+		# Reformat
+		per <- reformatPer(per_cc_Long, "V9")
+		sd <- apply(per,1,sd)
+		lapply((paste(c("Cellular Component functions with to low standard deviation, percentages ", length(sd[sd<sdcut])), collapse="::")), write, "_stats", append=T)
+		per <- per[which(sd>=0.1),]
+
+
+		# Create annotations
+		annotationInfo <- annotate(per)[[1]]
+		annotationColours <- annotate(per)[[2]]
+
+		# Set color range
+		color_range <- length(seq(min(per_cc_Long$V7), max(per_cc_Long$V7), 0.1))
+
+		# If all percentage are the same, it is not possible to create a heatmap
+		if (max(per_cc_Long$V7) == min(per_cc_Long$V7)) {
+			pdf("plot_permultiple_cc.pdf", paper="a4r",width = 0, height = 0)
+			barplot(per, col=c("#ae002b"), main="Percentages of functions with CC GO, multiple genomes", ylab="percentage")
+		} else {
+			# Plot heatmap with clustering on column
+			pheatmap(per, cluster_rows=T, cluster_cols=T, main = "Percentages of functions with CC GO, multiple genomes",fontsize_row=5,fontsize=8,
+			border_color="white",color = colorRampPalette(c("white", "#ff005a","#a500ff"))(color_range), 
+			cellheight=5, cellwidth=15, filename="plot_permultiple_cc.pdf",width=width_user,treeheight_row= 150,
 			annotation=annotationInfo, annotation_colours=annotationColours,show_colnames=F,show_rownames=T)
 		}
 	}
 }
-
-#############################################################################################
-# Go terms - MULTIPLE GENOMES
-#############################################################################################
-if (length(levels(gomf_Long$V1)) > 1 & length(levels(gocc_Long$V1)) > 1 & length(levels(gobp_Long$V1)) > 1) {
 	
-	#############################################################################################
-	# Molecular function frequency GO- MULTIPLE GENOMES
-	#############################################################################################
-	if (dim(gomf_Long)[1] > 1 ) {
-		gomf <- reshape(gomf_Long, idvar='V3',timevar='V1',v.names='V6', direction="wide")
-		rownames(gomf) <- gomf[,1]
-		gomf <- as.matrix(gomf)
-		gomf <- gomf[,-1, drop=FALSE]
-		mode(gomf) <- 'numeric'
-		gomf[is.na(gomf)] <- 0
 
-		# Create annotations
-		annotationInfo <- colnames(gomf)
-		annotationInfo <- as.data.frame(annotationInfo)
-		rownames(annotationInfo) <- colnames(gomf)
-		annotationInfo$annotationInfo <- factor(annotationInfo$annotationInfo, levels=unique(colnames(gomf)))
-		generateColours <- brewer.pal(n = 7, name = "RdYlBu")
-		annotationColours <- generateColours[1:length(unique(colnames(gomf)))]
-		names(annotationColours) <- unique(colnames(gomf))
-		annotationColours <- list(annotationInfo=annotationColours)
 
-		# Set color range
-		color_range <- length(seq(min(gomf_Long$V6), max(gomf_Long$V6), 1))
 
-		# If all gomfuencies are the same, it is not possible to create a heatmap
-		if (max(gomf_Long$V6) == min(gomf_Long$V6)) {
-			pdf("plot_gomfmulti_mf.pdf", paper="a4r",width = 0, height = 0)
-			barplot(gomf, col=c("#00a0ea"), main="Frequency of Molecular Function GO terms, multiple genomes", ylab="frequency gomf")
-		} else {
-			# Plot heatmap with clustering on column
-			pheatmap(gomf, cluster_rows=T, cluster_cols=T, main = "Frequency of Molecular Function GO terms, multiple genomes",fontsize_row=5,fontsize=8,
-			border_color="white",color = colorRampPalette(c("white","#ea002b", "#00a0ea"))(color_range), 
-			cellheight=5,filename ="plot_gomfmulti_mf.pdf",width=widthsingle,treeheight_row= 150,
-			annotation=annotationInfo, annotation_colours=annotationColours,show_colnames=F,show_rownames=T)
-		}
-
-	} 
-	#############################################################################################
-	# Cellular component frequency GO- MULTIPLE GENOMES
-	#############################################################################################
-	if (dim(gocc_Long)[1] > 1) {
-
-		gocc <- reshape(gocc_Long, idvar='V3',timevar='V1',v.names='V6', direction="wide")
-		rownames(gocc) <- gocc[,1]
-		gocc <- as.matrix(gocc)
-		gocc <- gocc[,-1, drop=FALSE]
-		mode(gocc) <- 'numeric'
-		gocc[is.na(gocc)] <- 0
-
-		# Create annotations
-		annotationInfo <- colnames(gocc)
-		annotationInfo <- as.data.frame(annotationInfo)
-		rownames(annotationInfo) <- colnames(gocc)
-		annotationInfo$annotationInfo <- factor(annotationInfo$annotationInfo, levels=unique(colnames(gocc)))
-		generateColours <- brewer.pal(n = 7, name = "RdYlBu")
-		annotationColours <- generateColours[1:length(unique(colnames(gocc)))]
-		names(annotationColours) <- unique(colnames(gocc))
-		annotationColours <- list(annotationInfo=annotationColours)
-
-		# Set color range
-		color_range <- length(seq(min(gocc_Long$V6), max(gocc_Long$V6), 1))
-
-		# If all goccuencies are the same, it is not possible to create a heatmap
-		if (max(gocc_Long$V6) == min(gocc_Long$V6)) {
-			pdf("plot_goccmulti_cc.pdf", paper="a4r",width = 0, height = 0)
-			barplot(gocc, col=c("#00a0ea"), main="Frequency of Cellular Component GO terms, multiple genomes", ylab="frequency gocc")
-		} else {
-			# Plot heatmap with clustering on column
-			pheatmap(gocc, cluster_rows=T, cluster_cols=T, main = "Frequency of Cellular Component GO terms, multiple genomes",fontsize_row=5,fontsize=8,
-			border_color="white",color = colorRampPalette(c("white","#bf00ea", "#00a0ea"))(color_range), 
-			cellheight=5,filename="plot_goccmulti_cc.pdf",width=widthsingle,treeheight_row= 150,
-			annotation=annotationInfo, annotation_colours=annotationColours,show_colnames=F,show_rownames=T)
-		}
-	}
-	#############################################################################################
-	# Biological Process frequency GO- MULTIPLE GENOMES
-	#############################################################################################
-	if (dim(gobp_Long)[1] > 1) {
-
-		gobp <- reshape(gobp_Long, idvar='V3',timevar='V1',v.names='V6', direction="wide")
-		rownames(gobp) <- gobp[,1]
-		gobp <- as.matrix(gobp)
-		gobp <- gobp[,-1, drop=FALSE]
-		mode(gobp) <- 'numeric'
-		gobp[is.na(gobp)] <- 0
-
-		# Create annotations
-		annotationInfo <- colnames(gobp)
-		annotationInfo <- as.data.frame(annotationInfo)
-		rownames(annotationInfo) <- colnames(gobp)
-		annotationInfo$annotationInfo <- factor(annotationInfo$annotationInfo, levels=unique(colnames(gobp)))
-		generateColours <- brewer.pal(n = 7, name = "RdYlBu")
-		annotationColours <- generateColours[1:length(unique(colnames(gobp)))]
-		names(annotationColours) <- unique(colnames(gobp))
-		annotationColours <- list(annotationInfo=annotationColours)
-
-		# Set color range
-		color_range <- length(seq(min(gobp_Long$V6), max(gobp_Long$V6), 1))
-
-		# If all frequencies are the same, it is not possible to create a heatmap
-		if (max(gobp_Long$V6) == min(gobp_Long$V6)) {
-			pdf("plot_gobpmulti_bp.pdf", paper="a4r",width = 0, height = 0)
-			barplot(gobp, col=c("#00a0ea"), main="Frequency of Biological Process GO terms, multiple genomes", ylab="frequency gobp")
-		} else {
-			# Plot heatmap with clustering on column
-			pheatmap(gobp, cluster_rows=T, cluster_cols=T, main = "Frequency of Biological Process GO terms, multiple genomes",fontsize_row=5,fontsize=8,
-			border_color="white",color = colorRampPalette(c("white","#ea4a00", "#00a0ea"))(color_range), 
-			cellheight=5,filename="plot_gobpmulti_bp.pdf",width=widthsingle,treeheight_row= 150,
-			annotation=annotationInfo, annotation_colours=annotationColours,show_colnames=F,show_rownames=T)
-		}
-	}
-}	
+	

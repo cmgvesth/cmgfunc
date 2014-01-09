@@ -72,7 +72,7 @@ sub usage {
 	exit( 1 );	}
 
 #.............. Inputs ..............
-my ($res, $h, $score_cut) = ('',undef, 0.8);
+my ($res, $h, $score_cut) = (undef,undef, 0.8);
 my $CMGfunc_path	= "/home/cmgfunc/CMGfunc/indirect";
 my $INFO_path		= "/home/cmgfunc/CMGfunc/INFO";
 
@@ -87,7 +87,7 @@ unless (-d $CMGfunc_path)	{
 	printf ("%-40s:\t%-50s\n", "# ERROR checkPATHS", "CMGfunc_directory : $CMGfunc_path");		
 	&usage;	exit; }
 
-unless (defined $res)	{	
+unless ($res)	{	
 	print "#================================================================================================================================\n";	
 	printf ("%-40s:\t%-50s\n", "# ERROR", "CMGfunc RES file not defined, example: perl CMGfunc_analyzeGenome.pl -res file.fsa.tab.vector.res");	
 	&usage;	exit; }
@@ -137,7 +137,7 @@ sub analyzeResults {
 	my ($net, $seq);
 	my (%GOHash, %freqHash);
 
-	printf ("%-40s\t==>\t%-50s\n", "# RUNNING analyzeResults", "will create file: $res_filename.table ");#and $res_filename.table.all");
+	printf ("%-40s\t==>\t%-50s\n", "# RUNNING analyzeResults", "will create file: $res_filename.table ");
 
 	open(FHres,$res_filename);
 	while( my $line = <FHres> )  {
@@ -154,10 +154,9 @@ sub analyzeResults {
 			elsif	($net =~ m/\_archNOclan\_/)	{	&archNoClanNetworks	($net, $score, \%GOHash, \%freqHash)	}
 			elsif	($net =~ m/local/)			{	&localNetworks		($net, $score, \%freqHash)				}
 		}
-	} # WHILE RESLINE END  ---------------------------------------------
-	close FHres;
-	#print "ARCH: arch\tclan nrs\tclan names\tfreq\tpercentage\tgo terms\n";
-	#print "CLAN: clan nr\tclan nr\tclan names\tfreq\tpercentage\tgo terms\n";
+	} 
+	close FHres;# WHILE RESLINE END  ---------------------------------------------
+
 	my $sum = 0;
 	foreach my $k (keys %freqHash) { $sum += $freqHash{$k}}
 
@@ -170,36 +169,44 @@ sub analyzeResults {
 	print FHtable "# Type\tmodel nr.\tclans\tdescription\tfreq\tpercentage\tgo terms\n";
 	print FHtable "#================================================================================================\n";
 	
-	foreach my $n ( keys %GOHash ) {
-		my $go_type = `grep -P -m 1 "$n\t" /home/cmgfunc/CMGfunc/INFO/info_goid_desc_type_go.txt | cut -f 3 `; chomp $go_type;
-		my $go_desc = `grep -P -m 1 "$n\t" /home/cmgfunc/CMGfunc/INFO/info_goid_desc_type_go.txt | cut -f 2 `; chomp $go_desc;
-		print FHtable "GO\t$n\tNA\t$go_desc\t$GOHash{$n}\tNA\t$go_type\n";
-	}
 	foreach my $n ( keys %freqHash ) {
 		if ($n =~ m/local/) {
 			my $netnr = (split("\\.", $n))[0];	
 			my $desc = `head -n 1 /home/cmgfunc/CMGfunc/NETS/LOCAL/$net*txt | gut -f 2`;
 			my $name = `head -n 1 /home/cmgfunc/CMGfunc/NETS/LOCAL/$net*txt | gut -f 1`;	
 
-			print FHtable "LOCAL\t$n\t$n\t$name\t$freqHash{$n}\tNA\t$desc\n";
+			print FHtable "LOCAL\t$n\t$n\t$name\t$freqHash{$n}\tNA\t$desc\tNA\tNA\n";
 		}
 		if ($n =~ m/PF/) {
 			my ($pfam, $clan_nr, $clan_name, $pfam_desc, $go_terms);	
 			my (%clan_nrs, %clan_names, %pfam_descs, %go_terms_all);
 			my @pfams = split("_", $n);
+			my (@go_mf, @go_cc, @go_bp);
 
 			for $pfam (@pfams) {
-				$clan_nr = `grep -P "^$pfam\t" /home/cmgfunc/CMGfunc/INFO/info_pfam_clannr_clandesc_gos_godescs.txt | cut -f 3`; chomp $clan_nr;
+				$clan_nr = `grep -P -m 1 "^$pfam\t" /home/cmgfunc/CMGfunc/INFO/info_pfam_clannr_clandesc_gos_godescs.txt | cut -f 3`; chomp $clan_nr;
 				$clan_nrs{$clan_nr} = 1 unless $clan_nr eq "NA";
 
-				$clan_name = `grep -P "^$pfam\t" /home/cmgfunc/CMGfunc/INFO/info_pfam_clannr_clandesc_gos_godescs.txt | cut -f 4`; chomp $clan_name;
+				$clan_name = `grep -P -m 1 "^$pfam\t" /home/cmgfunc/CMGfunc/INFO/info_pfam_clannr_clandesc_gos_godescs.txt | cut -f 4`; chomp $clan_name;
 				$clan_names{$clan_name} = 1 unless $clan_name eq "NA";
 
-				$pfam_desc = `grep -P "^$pfam\t" /home/cmgfunc/CMGfunc/INFO/info_pfam_clannr_clandesc_gos_godescs.txt | cut -f 2`; chomp $pfam_desc;
+				$pfam_desc = `grep -P -m 1 "^$pfam\t" /home/cmgfunc/CMGfunc/INFO/info_pfam_clannr_clandesc_gos_godescs.txt | cut -f 2`; chomp $pfam_desc;
 				$pfam_descs{$pfam_desc} = 1 unless $pfam_desc eq "NA";
 
-				$go_terms = `grep -P "^$pfam\t" /home/cmgfunc/CMGfunc/INFO/info_pfam_clannr_clandesc_gos_godescs.txt | cut -f 6`; chomp $go_terms;
-				$go_terms_all{$go_terms} = 1 unless $go_terms eq "NA";
+				$go_terms = `grep -P -m 1 "^$pfam\t" /home/cmgfunc/CMGfunc/INFO/info_pfam_clannr_clandesc_gos_godescs.txt | cut -f 6`; chomp $go_terms;
+				my @go_tmp = split("::", $go_terms);
+				for my $g (@go_tmp) {
+					next if $g eq "NA";
+					my ($go_type, $type_go) = ('NA', 'NA');
+					$go_type = `grep -P $g /home/cmgfunc/CMGfunc/INFO/info_goid_desc_type_go.txt | cut -f 3`; chomp $go_type;
+					if		($go_type =~ m/molecular/)	{	$type_go = $g."MF"; push(@go_mf,$type_go) } 
+					elsif	($go_type =~ m/cellular/)	{	$type_go = $g."CC"; push(@go_cc,$type_go) } 
+					elsif	($go_type =~ m/biological/) {	$type_go = $g."BP"; push(@go_bp,$type_go) }
+				}		
+
+				$go_terms_all{join(":", @go_mf)} = 1 unless $go_terms eq "NA";
+				$go_terms_all{join(":", @go_cc)} = 1 unless $go_terms eq "NA";
+				$go_terms_all{join(":", @go_bp)} = 1 unless $go_terms eq "NA";
 			}
 			my ($clan_nrs_line, $clan_names_line, $go_terms_line, $pfam_descs_line, $name_line) = ("NA","NA","NA","NA","NA");
 			$clan_nrs_line = join(":", (keys(%clan_nrs))) 		unless scalar(keys(%clan_nrs)) < 1;
@@ -207,22 +214,57 @@ sub analyzeResults {
 			$go_terms_line = join(":", (keys(%go_terms_all))) 	unless scalar(keys(%go_terms_all)) < 1;
 			$pfam_descs_line = join(":", (keys(%pfam_descs))) 	unless scalar(keys(%pfam_descs)) < 1;
 			
-			$name_line =  $clan_nrs_line."-".$go_terms_line if scalar(keys(%clan_nrs)) > 0 ;
-			$name_line =  $n."-".$go_terms_line if scalar(keys(%clan_nrs)) < 1 ;
+			#$name_line =  $clan_nrs_line."-".$go_terms_line if scalar(keys(%clan_nrs)) > 0 ;
+			#$name_line =  $n."-".$go_terms_line if scalar(keys(%clan_nrs)) < 1 ;
+			my ($go_terms_mf, $go_terms_cc,$go_terms_bp) = ("NA","NA","NA");
+			if (scalar(@go_mf) > 0) { $go_terms_mf = join(":", @go_mf); $go_terms_mf =~ s/::$//g }
+			if (scalar(@go_cc) > 0) { $go_terms_cc = join(":", @go_cc); $go_terms_cc =~ s/::$//g }
+			if (scalar(@go_bp) > 0) { $go_terms_bp = join(":", @go_bp); $go_terms_bp =~ s/::$//g }
+			my $name_line_mf =  $n."-".$go_terms_mf;
+			my $name_line_cc =  $n."-".$go_terms_cc;
+			my $name_line_bp =  $n."-".$go_terms_bp;
+
 			my $percentage = ($freqHash{$n}/$res_seq_count)*100;
 
-			print FHtable "ARCH\t$n\t$clan_nrs_line\t$clan_names_line\t$freqHash{$n}\t$percentage\t$name_line\n";
+			print FHtable "ARCH\t$n\t$clan_nrs_line\t$clan_names_line\t$freqHash{$n}\t$percentage\t$name_line_mf\t$name_line_cc\t$name_line_bp\n";
 			#print FHtable "ARCH\t$n\t$clan_nrs_line\t$clan_names_line\t$freqHash{$n}\t$percentage\t$go_terms_line\n" if scalar(keys(%clan_nrs)) > 0;
 			#print FHtable "ARCH\t$n\tNA\t$pfam_descs_line\t$freqHash{$n}\t$percentage\t$go_terms_line\n" if scalar(keys(%clan_nrs)) < 1;
 		}
 		else {
-			my $clan_name = `cut -f 3,4 /home/cmgfunc/CMGfunc/INFO/info_pfam_clannr_clandesc_gos_godescs.txt | grep -P "^$n\t" | cut -f 2 | sort -u`; chomp $clan_name;
-			my @go_tmp = `cut -f 3,6 /home/cmgfunc/CMGfunc/INFO/info_pfam_clannr_clandesc_gos_godescs.txt | grep -P "^$n\t" | cut -f 2 | perl -pe 's/::/\n/g' | sort -u | 				grep -v NA | perl -pe 's/\n/::/g'`;
-			my $go_terms = join(":", @go_tmp); $go_terms =~ s/::$//g;
-			my $percentage = ($freqHash{$n}/$res_seq_count)*100;
-			my $name_line =  $n."-".$go_terms;
+			my (@go_mf, @go_cc, @go_bp, @go_tmp2);
+			my %go_terms_all;
+			my ($go_type, $type_go) = ('NA', 'NA');
 
-			print FHtable "CLAN\t$n\t$n\t$clan_name\t$freqHash{$n}\t$percentage\t$name_line\n";
+			my $clan_name = `cut -f 3,4 /home/cmgfunc/CMGfunc/INFO/info_pfam_clannr_clandesc_gos_godescs.txt | grep -P "^$n\t" | cut -f 2 | sort -u`; chomp $clan_name;
+			my $go_terms = `cut -f 3,6 /home/cmgfunc/CMGfunc/INFO/info_pfam_clannr_clandesc_gos_godescs.txt | grep -P "^$n\t" | cut -f 2 | perl -pe 's/::/\n/g' | sort -u | 				grep -v NA | perl -pe 's/\n/::/g'`;
+			my @go_tmp = split("::", $go_terms);
+			
+			for my $g (@go_tmp) {
+				next if $g eq "NA";
+				my ($go_type, $type_go) = ('NA', 'NA');
+				$go_type = `grep -P $g /home/cmgfunc/CMGfunc/INFO/info_goid_desc_type_go.txt | cut -f 3`; chomp $go_type;
+				if		($go_type =~ m/molecular/)	{	$type_go = $g."MF"; push(@go_mf,$type_go) } 
+				elsif	($go_type =~ m/cellular/)	{	$type_go = $g."CC"; push(@go_cc,$type_go) } 
+				elsif	($go_type =~ m/biological/) {	$type_go = $g."BP"; push(@go_bp,$type_go) }
+			}		
+
+			$go_terms_all{join(":", @go_mf)} = 1 unless $go_terms eq "NA";
+			$go_terms_all{join(":", @go_cc)} = 1 unless $go_terms eq "NA";
+			$go_terms_all{join(":", @go_bp)} = 1 unless $go_terms eq "NA";
+
+			my ($go_terms_mf, $go_terms_cc,$go_terms_bp) = ("NA","NA","NA");
+			if (scalar(@go_mf) > 0) { $go_terms_mf = join(":", @go_mf); $go_terms_mf =~ s/::$//g }
+			if (scalar(@go_cc) > 0) { $go_terms_cc = join(":", @go_cc); $go_terms_cc =~ s/::$//g }
+			if (scalar(@go_bp) > 0) { $go_terms_bp = join(":", @go_bp); $go_terms_bp =~ s/::$//g }
+			my $name_line_mf =  $n."-".$go_terms_mf;
+			my $name_line_cc =  $n."-".$go_terms_cc;
+			my $name_line_bp =  $n."-".$go_terms_bp;
+
+
+			my $percentage = ($freqHash{$n}/$res_seq_count)*100;
+
+
+			print FHtable "CLAN\t$n\t$n\t$clan_name\t$freqHash{$n}\t$percentage\t$name_line_mf\t$name_line_cc\t$name_line_bp\n";
 		}
 	}
 	close FHtable;
@@ -248,18 +290,7 @@ sub clanNetworks {
 
 	# HASH of clan networks	---------------------------------------------
 	my $clannr = (split("_",(split("\\.", $net))[0]))[-1];	
-	my %go_per_arch;
 
-	# GO freq. counts ---------------------------------------------
-	my @go_tmp = `cut -f 3,6 /home/cmgfunc/CMGfunc/INFO/info_pfam_clannr_clandesc_gos_godescs.txt | grep -P "^$clannr\t" | cut -f 2 | perl -pe 's/::/\n/g' | sort -u | grep -v NA 		| perl -pe 's/\n/::/g'`;
-	my $go_tmp = join("_", @go_tmp); $go_tmp =~ s/::$//g;chomp $go_tmp;
-	my @go_terms = split("::", $go_tmp);
-
-	for my $go (@go_terms) {
-		$$GOHash{$go} ++;
-		$go_per_arch{$go} ++; 
-	}
-	# Seperate high and bad scoring results --------------------------------
 	$$freqHash{$clannr} ++;
 }
 
@@ -276,16 +307,6 @@ sub archClanNetworks {
 	my @pfams = (split("_", $arch));
 	my %go_per_arch;
 
-	# GO freq. counts ---------------------------------------------
-	for my $pfam (@pfams) {	
-		my $go_tmp = `grep -P "^$pfam\t" /home/cmgfunc/CMGfunc/INFO/info_pfam_clannr_clandesc_gos_godescs.txt | cut -f 6`;chomp $go_tmp;
-		my @go_terms = split("::", $go_tmp);
-
-		for my $go (@go_terms) {
-			$$GOHash{$go} ++;
-			$go_per_arch{$go} ++; 
-		}
-	}
 	# Seperate high and bad scoring results --------------------------------
 	$$freqHash{$arch} ++ ;
 }
@@ -302,16 +323,6 @@ sub archNoClanNetworks {
 	my @pfams = (split("_", $arch));
 	my %go_per_arch;
 
-	# GO freq. counts ---------------------------------------------
-	for my $pfam (@pfams) {		
-		my $go_tmp = `grep -P "^$pfam\t" /home/cmgfunc/CMGfunc/INFO/info_pfam_clannr_clandesc_gos_godescs.txt | cut -f 6`;chomp $go_tmp;
-		my @go_terms = split("::", $go_tmp);
-	
-		for my $go (@go_terms) {
-			$$GOHash{$go} ++;
-			$go_per_arch{$go} ++; 
-		}
-	}
 	$$freqHash{$arch} ++ ;
 }
 #################################################

@@ -137,6 +137,7 @@ foreach my $m ( keys %normHoH ) {
 		#print "$m: $i=$normHoH{$m}{$i} \n"
 	}
 	print OUTFILE "\n";
+	`sed -i 's/N/0/' $filename.vec`;
 	close OUTFILE ;
 }
 
