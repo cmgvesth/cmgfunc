@@ -1,7 +1,4 @@
-#!/usr/bin/python2.7
-
-# Pre processing of networks for CMGfunc. 
-# This code is not intended for users. Script trains networks on proper input data using pybrain.
+#!/tools/opt/anaconda/bin/python2.7
 
 #------------------------ IMPORTS --------------------------------
 from pybrain.datasets             import ClassificationDataSet
@@ -31,7 +28,37 @@ from math import sqrt
 import os
 import re
 import sys
+'''
+for i in proteindata_*_1*test proteindata_*_2*test proteindata_*_3*test proteindata_*_4*test
+do  
+x=${i%.test}  
+python /home/cmgfunc/MySQL/CMGfunc/pre_CMGfunc_trainNetworks.py -i $x.train -t $x.test -n /home/cmgfunc/MySQL/CMGfunc/DATA/TAB/networkperformance_A.txt
+done
 
+for i in proteindata_*_1*test proteindata_*_2*test proteindata_*_3*test proteindata_*_4*test
+do  
+x=${i%.test}  
+python /home/cmgfunc/MySQL/CMGfunc/pre_CMGfunc_trainNetworks.py -i $x.train -t $x.test -n /home/cmgfunc/MySQL/CMGfunc/DATA/TAB/networkperformance_B.txt
+done
+
+
+for i in proteindata_*_220*test  
+do  
+x=${i%.test}  
+python2.7 /home/cmgfunc/MySQL/CMGfunc/pre_CMGfunc_trainNetworks.py -i $x.train -t $x.test -n /home/cmgfunc/MySQL/CMGfunc/DATA/TAB/networkperformance.txt
+done
+
+foreach x (/home/people/cmgfunc/projects/CMGfunc/setA_clans/proteindata_*_220*test )
+echo $x:r $x:r.train $x:r.test
+python2.7 /home/people/cmgfunc/projects/CMGfunc/pre_CMGfunc_trainNetworks.py -i $x:r.train -t $x -n $x:r.networkperformance.txt
+end
+
+foreach x (/home/people/cmgfunc/projects/CMGfunc/SetClans/proteindata_*_101*A*test )
+xmsub -l mem=1gb,walltime=10800,procs=1,partition=cge-cluster -d /home/people/cmgfunc/projects/CMGfunc/SetClans/ -ro $x.o -re $x.e -r y -de /tools/opt/anaconda/bin/python2.7 /home/people/cmgfunc/projects/CMGfunc/pre_CMGfunc_trainNetworks.py -i $x:r.train -t $x -n $x:r.networkperformance.txt >> job_list.lst
+end
+
+grep MSE *progress | cut -f 3- | sort -n -k 18
+'''
 #-----------------------------------
 #----------------- SUB: testNetwork
 #-----------------------------------
@@ -79,9 +106,14 @@ parser.add_argument('-i', required=True, help='Input filename <uarch10938.train>
 parser.add_argument('-t', required=True, help='Test filename <uarch10938.test>')
 parser.add_argument('-c', required=False, help='Do not re-calc network', default='True')
 parser.add_argument('-n', required=False, help='name for network performance file', default='networkperformance.txt')
+#parser.add_argument('-o', required=True, help='Output filename <uarch10938.net>')
+#parser.add_argument('-s', required=True, help='Number of positive examples')
+#parser.add_argument('-n', required=True, help='Neurons in hidden layer', type=int)
 args = parser.parse_args()
 #-----------------------------------------------------------------
 
+#i_train = "/home/people/cmgfunc/projects/CMGfunc/setA_clans/"+args.i
+#t_test = "/home/people/cmgfunc/projects/CMGfunc/setA_clans/"+args.t
 
 i_train = args.i
 t_test = args.t
@@ -93,10 +125,11 @@ tmprootname = (args.i.split("/"))[-1]
 rootname = tmprootname.replace('.train', '')
 netname= args.i.replace('.train', '')
 
-files = [f for f in os.listdir('/home/cmgfunc/CMGfunc/SetClans/') if re.match(r'^'+rootname+'.+net$', f)]
+files = [f for f in os.listdir('/home/people/cmgfunc/projects/CMGfunc/SetClans/') if re.match(r'^'+rootname+'.+net$', f)]
 
 if (len(files)>0):
     print "# Network already compiled for training file: ", i_train
+    #print "# Network already compiled for training file: ", args.i
     sys.exit()
 
 #--------------------- READ TRAIN DATA ---------------------------
@@ -203,3 +236,6 @@ PCCr_row, PCCp_value = pearsonr(target,predicted)
 print >> FH , "#\t%s" % args.i, "\tPCC:\t%.4f" % PCCr_row , "\tMCC_09:\t%.4f" % mcc09 , "\tMSE:\t%.4f" % float(mse), "\tTP_09:\t%.0f" % tp09 , "\tTN_09:\t%.0f" % tn09 , "\tFP_09:\t%.0f" % fp09 , "\tFN_09:\t%.0f" % fn09 , "\tRN:\t%.0f" % rn , "\tRP:\t%.0f" % rp
 
 FH.flush()
+
+# http://biomunky.wordpress.com/2010/03/17/hmmm-pybrains/
+# http://stackoverflow.com/questions/8139822/how-to-load-training-data-in-pybrain/8143012#8143012

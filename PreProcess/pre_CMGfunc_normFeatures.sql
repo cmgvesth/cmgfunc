@@ -1,6 +1,3 @@
-# Pre processing of features for training of networks for CMGfunc. Script is not intended for users. 
-# Script normalizes feature in a local MySQL database (see proteinfunction.sql)
-
 use proteinfunction;
 update feat set nweight_aromatic=weight_aromatic/molecular_weight;
 update feat set nweight_negative=weight_negative/molecular_weight;

@@ -1,9 +1,6 @@
 #!/bin/bash
 
 :<<'COMMENT'
-# Pre processing of networks for CMGfunc. Script is not intended for users. 
-# Script creates test and training data for network training by selecting random fractions of positive and negative data.
-
 #############################################################################
 # Create train and test files
 #############################################################################
@@ -104,6 +101,7 @@ train_neg=$(echo "$total_pos" | bc | awk '{print int($1)}')		# 100% of the size 
 test_pos=$(echo "$total_pos*0.25" | bc | awk '{print int($1)}')	# 25% of the pos data is used for training	
 test_neg=$(echo "$total_pos" | bc | awk '{print int($1)}')		# 100% of the size of the pos set is used as neg data in test
 
+#echo $total_pos, $test_pos, $test_neg,  $train_pos, $train_neg
 
 #---------------------------------------------------------------------
 #----------------- Tranining data
@@ -113,6 +111,7 @@ test_neg=$(echo "$total_pos" | bc | awk '{print int($1)}')		# 100% of the size o
 echo "# Running positive examples for $x.$num.train"
 
 shuf -n $train_pos $x | grep -v number | perl -lane 'print "@F[3..31] @F[35..$#F]"; print "1"'  >> $x.$num.train
+#shuf -n $train_pos $x | grep -v number | perl -lane 'print "@F[3..$#F]"; print "1"'  >> $x.$num.train
 
 echo "# Created positive examples for $x.$num.train"
 
@@ -134,6 +133,7 @@ do
 	fi
 
 	shuf -n $neglines $negfile | grep -v number | perl -lane 'print "@F[3..31] @F[35..$#F]"; print "0"' >> $x.$num.train
+	#shuf -n $neglines $negfile | grep -v number | perl -lane 'print "@F[3..$#F] "; print "0"' >> $x.$num.train
 done
 
 
@@ -150,6 +150,7 @@ totalttrainlines=$(wc $x.$num.train | awk '{print ($1)/2}')
 echo "# Running positive examples for $x.$num.test"
 
 shuf -n $test_pos $x | grep -v number | perl -lane 'print "@F[3..31] @F[35..$#F]"; print "1"'  >> $x.$num.test
+#shuf -n $test_pos $x | grep -v number | perl -lane 'print "@F[3..$#F] "; print "1"'  >> $x.$num.test
 
 echo "# Created positive examples for $x.$num.test"
 
@@ -171,6 +172,7 @@ do
 	fi
 
 	shuf -n $neglines $negfile | grep -v number | perl -lane 'print "@F[3..31] @F[35..$#F]"; print "0"' >> $x.$num.test
+	#shuf -n $neglines $negfile | grep -v number | perl -lane 'print "@F[3..$#F] "; print "0"' >> $x.$num.test
 done
 
 
@@ -189,3 +191,4 @@ sed -i '/^[ \t]*$/d' $x.$num.train
 
 echo "# Running pattern replacement for $x.$num.test"
 sed -i '/^[ \t]*$/d' $x.$num.test
+
