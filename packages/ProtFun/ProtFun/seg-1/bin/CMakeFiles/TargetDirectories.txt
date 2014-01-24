@@ -1,5 +1,0 @@
-/home/steven/Projects/CMG-Biotools-Share/protfun_cmake/seg-1/bin/CMakeFiles/nmerge.dir
-/home/steven/Projects/CMG-Biotools-Share/protfun_cmake/seg-1/bin/CMakeFiles/nseg.dir
-/home/steven/Projects/CMG-Biotools-Share/protfun_cmake/seg-1/bin/CMakeFiles/pmerge.dir
-/home/steven/Projects/CMG-Biotools-Share/protfun_cmake/seg-1/bin/CMakeFiles/pseg.dir
-/home/steven/Projects/CMG-Biotools-Share/protfun_cmake/seg-1/bin/CMakeFiles/seg.dir

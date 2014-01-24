@@ -1,1 +1,0 @@
-/usr/bin/gcc      CMakeFiles/seg.dir/seg/seg.c.o CMakeFiles/seg.dir/seg/genwin.c.o  -o seg -rdynamic -lm 

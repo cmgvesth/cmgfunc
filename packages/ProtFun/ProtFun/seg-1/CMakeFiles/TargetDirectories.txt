@@ -1,5 +1,0 @@
-/home/cmgfunc/ProtFun/ProtFun/seg-1/CMakeFiles/nmerge.dir
-/home/cmgfunc/ProtFun/ProtFun/seg-1/CMakeFiles/nseg.dir
-/home/cmgfunc/ProtFun/ProtFun/seg-1/CMakeFiles/pmerge.dir
-/home/cmgfunc/ProtFun/ProtFun/seg-1/CMakeFiles/pseg.dir
-/home/cmgfunc/ProtFun/ProtFun/seg-1/CMakeFiles/seg.dir

@@ -1,1 +1,0 @@
-/usr/bin/cc      CMakeFiles/./bin/seq2mtx.dir/src/seq2mtx.c.o  -o ./bin/seq2mtx -rdynamic -lm 

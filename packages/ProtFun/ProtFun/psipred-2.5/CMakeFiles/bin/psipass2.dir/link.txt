@@ -1,1 +1,0 @@
-/usr/bin/cc      CMakeFiles/./bin/psipass2.dir/src/sspred_hmulti.c.o  -o ./bin/psipass2 -rdynamic -lm 

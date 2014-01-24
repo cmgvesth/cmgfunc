@@ -1,1 +1,0 @@
-/usr/bin/gcc      CMakeFiles/pmerge.dir/pseg/pmerge.c.o CMakeFiles/pmerge.dir/pseg/pgenwin.c.o  -o pmerge -rdynamic -lm 

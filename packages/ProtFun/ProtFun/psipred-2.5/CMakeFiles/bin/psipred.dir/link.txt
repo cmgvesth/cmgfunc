@@ -1,1 +1,0 @@
-/usr/bin/cc      CMakeFiles/./bin/psipred.dir/src/sspred_avpred.c.o  -o ./bin/psipred -rdynamic -lm 

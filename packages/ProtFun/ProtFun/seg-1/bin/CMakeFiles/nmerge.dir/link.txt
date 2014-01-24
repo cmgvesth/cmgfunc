@@ -1,1 +1,0 @@
-/usr/bin/gcc      CMakeFiles/nmerge.dir/nseg/nmerge.c.o CMakeFiles/nmerge.dir/nseg/genwin.c.o  -o nmerge -rdynamic -lm 

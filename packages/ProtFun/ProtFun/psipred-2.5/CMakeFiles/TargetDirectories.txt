@@ -1,4 +1,0 @@
-/home/cmgfunc/ProtFun/ProtFun/psipred-2.5/CMakeFiles/./bin/pfilt.dir
-/home/cmgfunc/ProtFun/ProtFun/psipred-2.5/CMakeFiles/./bin/psipass2.dir
-/home/cmgfunc/ProtFun/ProtFun/psipred-2.5/CMakeFiles/./bin/psipred.dir
-/home/cmgfunc/ProtFun/ProtFun/psipred-2.5/CMakeFiles/./bin/seq2mtx.dir
