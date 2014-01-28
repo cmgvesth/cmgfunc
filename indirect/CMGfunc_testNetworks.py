@@ -89,7 +89,9 @@ parser = argparse.ArgumentParser(description='# Get input and output file names.
 parser.add_argument('-i', required=True, help='Input filename <uarch10938.vec>')
 parser.add_argument('-n', required=True, help='Path to network files')
 parser.add_argument('-m', required=True, help='Score ')
+
 args = parser.parse_args()
+
 #-----------------------------------------------------------------
 
 #.............. Output file ..............
@@ -98,8 +100,8 @@ outall_file_name = args.i + ".res.all"
 
 # If file already found, exit and ask to delete
 if os.path.isfile(out_file_name):
-    print "# WARNING CMGfunc_testNetworks.pl: resultfile already exists: ", out_file_name
-    print "# WARNING CMGfunc_testNetworks.pl: will not re-calculate for sequences already in file, delete and re-run if desired"
+    print "# WARNING CMGfunc_testNetworks.py\t\t==>\tresultfile already exists: ", out_file_name
+    print "# WARNING CMGfunc_testNetworks.py\t\t==>\twill not re-calculate for sequences already in file, delete and re-run if desired"
     out_file = open(out_file_name, "a")
     outall_file = open(outall_file_name, "a")
 
@@ -129,7 +131,7 @@ print >> out_file, "# Comparison started for file: ",args.i
 
 
 while line:
-    elements = line.split()
+    elements = line.split("\t")
     seqname = elements[0]
 
     if os.path.isfile(out_file_name):
@@ -140,7 +142,7 @@ while line:
             i=i+1
             continue
 
-    seqfeats = map(float,elements[3:])
+    seqfeats = map(float,elements[3:-1])
 
     max_score=0
     max_net = "none"
